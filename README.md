@@ -1,4 +1,5 @@
 # 10_Animal_Classification
+This is the project work for group 44 in the course: Machine Learning Operations at DTU. This group consists of: Rasmus Laansalu, Marcos Bauch Mira, Viraj Rajurkar, Anke van de Watering, Abrahim Abbas. 
 
 1. **Overall Goal:** The goal is to classify images of animals into ten categories (dog, horse, cat, spider, butterfly, chicken, sheep, cow, squirrel, and elephant). The project involves building and evaluating deep learning models to achieve high classification accuracy while exploring reproducibility and scalability.
    
