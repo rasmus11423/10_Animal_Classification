@@ -38,9 +38,6 @@ def training_step(images:torch.Tensor, labels, model: nn.Module, criterion:nn.Mo
             return loss.item(), accuracy, predicted
 
 
-    
-
-
 def evaluate(model: nn.Module, dataloader: DataLoader, criterion: nn.Module) -> Tuple[float, float]:
     total_loss = 0
     correct = 0
@@ -145,7 +142,7 @@ def train(batch_size:int, epochs:int, lr:float)->None:
                     predictions[idx].item(),
                     epoch
                 )
-            
+      
         wandb.log({
             "Train accuracy": avg_acc,  
             "Train loss": avg_loss,
@@ -155,6 +152,14 @@ def train(batch_size:int, epochs:int, lr:float)->None:
             "predictions": mytable
         })
 
+        print(f"----------------------"*5)
+        print(f"Epoch: {epoch}")
+        print(f"Train loss: {avg_loss}")
+        print(f"Train accuracy: {avg_acc}")
+        print(f"val loss: {val_loss}")
+        print(f"val accuracy: {val_accuracy}")
+        
+
 #----------------------------
         #TODO: Generate plots and figures 
 
@@ -163,8 +168,6 @@ def train(batch_size:int, epochs:int, lr:float)->None:
 
 
 
-        
 
-
-        
-
+if __name__=="__main__": 
+     typer.run(train)
