@@ -18,6 +18,12 @@ from torchvision import transforms
 from torchvision.utils import save_image
 from PIL import Image
 import torchvision.transforms.functional as F
+import math 
+
+
+
+
+translate = {"cane": "dog", "cavallo": "horse", "elefante": "elephant", "farfalla": "butterfly", "gallina": "chicken", "gatto": "cat", "mucca": "cow", "pecora": "sheep", "scoiattolo": "squirrel", "dog": "cane", "cavallo": "horse", "elephant" : "elefante", "butterfly": "farfalla", "chicken": "gallina", "cat": "gatto", "cow": "mucca", "ragno": "spider", "squirrel": "scoiattolo"}
 
 
 def normalize(images):
@@ -54,11 +60,11 @@ class AnimalDataSet(Dataset):
 
 
 
-    def load_image(self, index): 
+    def load_image(self, index:int) -> Image: 
         image_path = self.image_paths[index]
         return Image.open(image_path) 
 
-def download_data(raw_data_path: str="./data/raw"):
+def download_data(raw_data_path: str="./data/raw")-> None:
     raw_data_path = os.path.abspath(raw_data_path)
     os.makedirs(raw_data_path, exist_ok=True)
 
@@ -114,6 +120,44 @@ def resize_with_padding(image: Image.Image, target_size: int, padding_color=(255
     return squared_image
 
 
+def partition_dataset(folder: str="data/processed/", split_ratio: float=0.8) -> None:
+    """ 
+    Split the dataset into train and test splits 
+    """
+    # First, create train and test directories at the root level
+    train_dir = os.path.join(folder, "train")
+    test_dir = os.path.join(folder, "test")
+    os.makedirs(train_dir, exist_ok=True)
+    os.makedirs(test_dir, exist_ok=True) 
+    
+    classes_folder = [f for f in os.listdir(folder) 
+                     if os.path.isdir(os.path.join(folder, f)) 
+                     and f not in ['train', 'test']]
+    
+    for label in classes_folder:
+        os.makedirs(os.path.join(train_dir, label), exist_ok=True)
+        os.makedirs(os.path.join(test_dir, label), exist_ok=True)
+        
+        source_folder = os.path.join(folder, label)
+        images_paths = list(pathlib.Path(source_folder).glob('*.jpeg'))
+        total_images = len(images_paths)
+        num_train = math.floor(total_images * split_ratio)
+        
+        for idx, image_path in enumerate(images_paths):
+            image = Image.open(image_path)
+            filename = image_path.name
+            
+            if idx < num_train:
+                save_path = os.path.join(train_dir, label, filename)
+            else:
+                save_path = os.path.join(test_dir, label, filename)
+                
+            image.save(save_path)
+            image.close()
+            
+        import shutil
+        shutil.rmtree(source_folder)
+
 
 def preprocess() -> None:
     output_folder = "data/raw"
@@ -125,11 +169,6 @@ def preprocess() -> None:
     logger.info("Indexing a class") 
 
     img, label = dataset[0] 
-
-    logger.info("Iterating over the data") 
-    
-    print(len(dataset))
-
     logger.info("Resizing the data") 
 
     transform = transforms.Compose( 
@@ -138,23 +177,25 @@ def preprocess() -> None:
             transforms.ConvertImageDtype(torch.float32),
             ]
             )
-    
-    
 
     for idx, (img, label_idx) in enumerate(dataset): 
         img_resized = resize_with_padding(img, 48) 
-        tensor = transform(img_resized)
         label = dataset.classes[label_idx]
-        class_folder = f"data/processed/{label}"
+        label_english = translate[label] 
+        class_folder = f"data/processed/{label_english}"
         os.makedirs(class_folder, exist_ok=True)
         save_path = os.path.join(class_folder, f"{idx}.jpeg")
+        img_resized.save(save_path)
 
-        torch.save(tensor, save_path)
+        # Now we save 
+    
+
+
 
     logger.info("All images saved succuesfully")
-
-
-
+    logger.info('Partitioning test and train data set...')
+    partition_dataset()
+    logger.info('Images partitioned...')
 
 
 if __name__ == "__main__":
