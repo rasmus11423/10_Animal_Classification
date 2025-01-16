@@ -159,6 +159,19 @@ def partition_dataset(folder: str="data/processed/", split_ratio: float=0.8) -> 
         shutil.rmtree(source_folder)
 
 
+def load_data(train=True):
+
+    transform = transforms.Compose([
+        transforms.Grayscale(1),
+        transform.ToTensor()
+    ])
+
+    if train: 
+        return AnimalDataSet("data/processed/train", transform) 
+
+    return AnimalDataSet("data/processed/test", transform) 
+
+
 def preprocess() -> None:
     output_folder = "data/raw"
     download_data(output_folder)
