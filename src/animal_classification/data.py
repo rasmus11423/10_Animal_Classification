@@ -13,6 +13,15 @@ import torch
 import pathlib
 from torchvision.transforms.functional import pad, resize
 import torchvision.transforms.functional as F
+import torch 
+from torchvision import transforms 
+from torchvision.utils import save_image
+from PIL import Image
+import torchvision.transforms.functional as F
+
+
+def normalize(images):
+    pass 
 
 class AnimalDataSet(Dataset):
     """My custom dataset."""
@@ -27,14 +36,9 @@ class AnimalDataSet(Dataset):
         """Return the length of the dataset."""
         return len(self.image_paths)
 
-    def __getitem__(self, index: int):
-        """Return a given sample from the dataset."""
-        pass
-
     def preprocess(self, output_folder: Path) -> None:
         """Preprocess the raw data and save it to the output folder."""
         pass
-
 
     def __getitem__(self, index: int) -> Tuple[torch.Tensor, int]:
         "Returns one sample of data, data and label (X, y)."
@@ -85,8 +89,6 @@ def find_classes(directory: str) -> Tuple[List[str], Dict[str, int]]:
     return classes, class_to_idx 
 
 
-from PIL import Image
-import torchvision.transforms.functional as F
 
 def resize_with_padding(image: Image.Image, target_size: int, padding_color=(255, 255, 255)) -> Image.Image:
     original_width, original_height = image.size
@@ -109,7 +111,6 @@ def resize_with_padding(image: Image.Image, target_size: int, padding_color=(255
     )
 
     squared_image = F.pad(resized_image, padding, fill=padding_color)
-
     return squared_image
 
 
@@ -124,7 +125,6 @@ def preprocess() -> None:
     logger.info("Indexing a class") 
 
     img, label = dataset[0] 
-    print(f"label: {img}")
 
     logger.info("Iterating over the data") 
     
@@ -132,17 +132,26 @@ def preprocess() -> None:
 
     logger.info("Resizing the data") 
 
+    transform = transforms.Compose( 
+            [transforms.Grayscale(num_output_channels=1),
+            transforms.PILToTensor(),
+            transforms.ConvertImageDtype(torch.float32),
+            ]
+            )
     
+    
+
     for idx, (img, label_idx) in enumerate(dataset): 
         img_resized = resize_with_padding(img, 48) 
+        tensor = transform(img_resized)
         label = dataset.classes[label_idx]
         class_folder = f"data/processed/{label}"
         os.makedirs(class_folder, exist_ok=True)
         save_path = os.path.join(class_folder, f"{idx}.jpeg")
 
-        img_resized.save(save_path, format="JPEG") 
-    logger.info("All images saved succuesfully")
+        torch.save(tensor, save_path)
 
+    logger.info("All images saved succuesfully")
 
 
 
