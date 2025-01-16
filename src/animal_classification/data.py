@@ -13,6 +13,8 @@ import torch
 import pathlib
 from torchvision.transforms.functional import pad, resize
 import torchvision.transforms.functional as F
+from PIL import Image
+import torchvision.transforms.functional as F
 
 class AnimalDataSet(Dataset):
     """My custom dataset."""
@@ -84,9 +86,6 @@ def find_classes(directory: str) -> Tuple[List[str], Dict[str, int]]:
     class_to_idx = {class_name: idx for idx,class_name in enumerate(classes)}
     return classes, class_to_idx 
 
-
-from PIL import Image
-import torchvision.transforms.functional as F
 
 def resize_with_padding(image: Image.Image, target_size: int, padding_color=(255, 255, 255)) -> Image.Image:
     original_width, original_height = image.size

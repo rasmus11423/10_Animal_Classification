@@ -7,19 +7,16 @@ class Animal_classifier(nn.Module):
         
         # 1 channel, 48x48 pixels
         self.sequential = nn.Sequential(
-            nn.Conv2d(in_channels=1, out_channels=32, kernel_size=3, stride=1, padding=0),
-            nn.LeakyReLU(),
+            nn.Conv2d(in_channels=3, out_channels=32, kernel_size=3, stride=1, padding=1),
+            nn.ReLU(),
             nn.MaxPool2d(kernel_size=2, stride=2),
-            nn.Conv2d(in_channels=32, out_channels=64, kernel_size=3, stride=1, padding=0),
-            nn.LeakyReLU(),
+            nn.Conv2d(in_channels=32, out_channels=64, kernel_size=3, stride=1, padding=1),
+            nn.ReLU(),
             nn.MaxPool2d(kernel_size=2, stride=2),
             nn.Flatten(),
-            nn.Linear(64*10*10, 128),
-            nn.LeakyReLU(),
-            nn.Linear(128, 64),
-            nn.LeakyReLU(),
-            nn.Linear(64, 10),
-            nn.Softmax(dim=1)
+            nn.Linear(64*12*12, 128),
+            nn.ReLU(),
+            nn.Linear(128, 10)
         )
 
     def forward(self, x):
