@@ -55,8 +55,9 @@ def train(batch_size:int, epochs:int, lr:float)->None:
         model.eval()
         with torch.no_grad():
             # TODO: Evaluation loop goes here 
+            pass 
+        
 
-            
 
 
 
