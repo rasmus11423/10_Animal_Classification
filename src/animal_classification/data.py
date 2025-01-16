@@ -6,7 +6,6 @@ from loguru import logger
 import os
 import json 
 from PIL import Image
-import mlcroissant as mlc
 from kaggle.api.kaggle_api_extended import KaggleApi
 from typing import Tuple, List, Dict
 import torch 
