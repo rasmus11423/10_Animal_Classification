@@ -135,12 +135,12 @@ def train(batch_size: int = 10, epochs: int= 10, lr: float=4e-4) -> None:
     # Saving the model
     torch.save(model.state_dict(), "models/model.pth")
     artifact=wandb.Artifact(
-        name = "animal classification model",
+        name = "animal_classification_model",
         type="model",
         description="A model trained on the animal classification dataset (kaggle)",
         metadata={"accuracy": avg_acc}
     )
-    artifact.add_file("model.pth")
+    artifact.add_file("models/model.pth")
     wandb.log_artifact(artifact)
 
 
