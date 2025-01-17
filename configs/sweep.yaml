@@ -1,0 +1,22 @@
+program: src/animal_classification/train.py
+name: animalsweep
+method: random
+project: MLops-animal-project
+command: 
+  - "C:/Users/ibrah/Documents/DTU/mlops/project/10_Animal_Classification/grp44-dtu-mlops/myenv/Scripts/python.exe"
+  - ${program}
+  - ${args}
+metric: 
+  goal: minimize
+  name: validation_loss
+parameters:
+  lr:
+    min: 1e-4 
+    max: 1e-2 
+    distribution: log_uniform
+  epochs:
+    values: [10, 15, 25]
+  batch_size:
+    values: [5, 15, 30]
+
+run_cap: 15

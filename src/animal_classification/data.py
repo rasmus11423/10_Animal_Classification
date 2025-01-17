@@ -34,8 +34,9 @@ translate = {
 }
 
 
-def normalize(images):
-    pass
+def normalize(images: torch.Tensor) -> torch.Tensor:
+    return (images - images.mean()) / images.std()
+
 
 
 class AnimalDataSet(Dataset):
@@ -162,8 +163,15 @@ def partition_dataset(folder: str = "data/processed/", split_ratio: float = 0.8)
         shutil.rmtree(source_folder)
 
 
-def load_data(train=True):
-    transform = transforms.Compose([transforms.Grayscale(1), transforms.ToTensor()])
+def load_data(rgb=False, train=True):
+
+    if rgb:
+        transform = transforms.Compose([transforms.ToTensor(), transforms.Lambda(lambda x: (x - x.mean()) / x.std())
+])
+
+    else:
+        transform = transforms.Compose([transforms.Grayscale(1), transforms.ToTensor(), transforms.Lambda(lambda x: (x - x.mean()) / x.std())
+])
 
     if train:
         return AnimalDataSet("data/processed/train", transform)

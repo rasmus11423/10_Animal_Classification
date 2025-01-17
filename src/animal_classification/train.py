@@ -7,8 +7,9 @@ import typer
 import wandb
 from loguru import logger
 
-from src.animal_classification import load_data
-from src.animal_classification import AnimalClassifier
+from data import load_data
+from model import AnimalClassifier
+
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 logger.info(f"Using device: {device}")
@@ -54,7 +55,7 @@ def evaluate(model: nn.Module, dataloader: DataLoader, criterion: nn.Module) -> 
     return avg_loss, accuracy
 
 
-def train(batch_size: int = 10, epochs: int= 10, lr: float=1e-4) -> None:
+def train(batch_size: int = 10, epochs: int= 10, lr: float=4e-4) -> None:
     logger.info("Initializing wandb project...")
     wandb.init(
         project="MLops-animal-project",
@@ -71,9 +72,9 @@ def train(batch_size: int = 10, epochs: int= 10, lr: float=1e-4) -> None:
     train_data = load_data(train=True)
     test_data = load_data(train=False)
 
-    test_dataloader = DataLoader(test_data, batch_size=batch_size, shuffle=True, num_workers=2)
+    test_dataloader = DataLoader(test_data, batch_size=batch_size, shuffle=True)
 
-    train_dataloader = DataLoader(train_data, batch_size=batch_size, shuffle=True, num_workers=2)
+    train_dataloader = DataLoader(train_data, batch_size=batch_size, shuffle=True)
 
     statistics = {"train_loss": [], "train_accuracy": [], "validation_loss": [], "validation_accuracy": []}
 
@@ -123,12 +124,24 @@ def train(batch_size: int = 10, epochs: int= 10, lr: float=1e-4) -> None:
             }
         )
 
+        
         print("----------------------" * 5)
         print(f"Epoch: {epoch}")
         print(f"Train loss: {avg_loss}")
         print(f"Train accuracy: {avg_acc}")
         print(f"val loss: {val_loss}")
         print(f"val accuracy: {val_accuracy}")
+
+    # Saving the model
+    torch.save(model.state_dict(), "models/model.pth")
+    artifact=wandb.Artifact(
+        name = "animal classification model",
+        type="model",
+        description="A model trained on the animal classification dataset (kaggle)",
+        metadata={"accuracy": avg_acc}
+    )
+    artifact.add_file("model.pth")
+    wandb.log_artifact(artifact)
 
 
 # ----------------------------
