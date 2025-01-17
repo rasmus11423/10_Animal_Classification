@@ -1,3 +1,8 @@
+# How to run
+
+The project requires (kaggle authentication)[https://www.kaggle.com/docs/api] to download the dataset. ("Go to the 'Account' tab of your user profile and select 'Create New Token'. This will trigger the download of kaggle.json, a file containing your API credentials.")
+
+
 # 10_Animal_Classification
 This is the project work for group 44 in the course: Machine Learning Operations at DTU. This group consists of: Rasmus Laansalu, Marcos Bauch Mira, Viraj Rajurkar, Anke van de Watering, Abrahim Abbas. 
 

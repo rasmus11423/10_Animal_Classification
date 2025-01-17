@@ -7,18 +7,18 @@ import typer
 import wandb
 from loguru import logger
 
-from src import load_data
-
+from src.animal_classification import load_data
+from src.animal_classification import AnimalClassifier
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 logger.info(f"Using device: {device}")
 
 
-model = "placeholder.device()"
-
+model = AnimalClassifier()
+model = model.to(device)
 
 def training_step(
-    images: torch.Tensor, labels, model: nn.Module, criterion: nn.Module, device: torch.device, optimizer: torch.optim
+    images: torch.Tensor, labels, model: nn.Module, criterion: nn.Module, optimizer: torch.optim
 ) -> Tuple[float, float, float]:
     optimizer.zero_grad()
     output = model(images)
@@ -54,11 +54,10 @@ def evaluate(model: nn.Module, dataloader: DataLoader, criterion: nn.Module) -> 
     return avg_loss, accuracy
 
 
-def train(batch_size: int, epochs: int, lr: float) -> None:
+def train(batch_size: int = 10, epochs: int= 10, lr: float=1e-4) -> None:
     logger.info("Initializing wandb project...")
     wandb.init(
         project="MLops-animal-project",
-        entity="grp-44",
         config={"learning_rate": lr, "epochs": epochs, "batch_size": batch_size},
     )
 
@@ -78,7 +77,7 @@ def train(batch_size: int, epochs: int, lr: float) -> None:
 
     statistics = {"train_loss": [], "train_accuracy": [], "validation_loss": [], "validation_accuracy": []}
 
-    for epoch in epochs:
+    for epoch in range(epochs):
         run_loss = 0
         run_acc = 0
 
@@ -92,6 +91,10 @@ def train(batch_size: int, epochs: int, lr: float) -> None:
             run_loss += batch_loss
 
         avg_loss, avg_acc = run_loss / len(train_dataloader), run_acc / len(train_dataloader)
+
+        if idx%800==0: 
+            print(f"epoch: {epoch}\nloss:{avg_loss}")
+
         statistics["train_loss"].append(avg_loss)
         statistics["train_accuracy"].append(avg_acc)
 
@@ -106,7 +109,7 @@ def train(batch_size: int, epochs: int, lr: float) -> None:
 
             for idx in random_indices:
                 mytable.add_data(
-                    wandb.Image(images[idx].numpy().cpu()), labels[idx].item(), predictions[idx].item(), epoch
+                    wandb.Image(images[idx].numpy()), labels[idx].item(), predictions[idx].item(), epoch
                 )
 
         wandb.log(
