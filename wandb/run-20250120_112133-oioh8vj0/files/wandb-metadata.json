@@ -1,0 +1,44 @@
+{
+  "os":  "macOS-15.0.1-arm64-arm-64bit",
+  "python":  "CPython 3.12.7",
+  "startedAt":  "2025-01-20T10:21:34.335460Z",
+  "program":  "/Users/marcos/Documents/github_projects/Animal Classification/src/animal_classification/train.py",
+  "codePath":  "src/animal_classification/train.py",
+  "git":  {
+    "remote":  "https://github.com/rasmus11423/10_Animal_Classification.git",
+    "commit":  "4aaae644d1d1d9e32955c11023309561405e919b"
+  },
+  "email":  "Marcosbauch2434@gmail.com",
+  "root":  "/Users/marcos/Documents/github_projects/Animal Classification",
+  "host":  "dhcp-10-209-76-97.students.clients.local",
+  "executable":  "/Users/marcos/Documents/github_projects/Animal Classification/env/bin/python",
+  "codePathLocal":  "src/animal_classification/train.py",
+  "cpu_count":  8,
+  "cpu_count_logical":  8,
+  "disk":  {
+    "/":  {
+      "total":  "494384795648",
+      "used":  "413416841216"
+    },
+    "/System/Volumes/Data":  {
+      "total":  "494384795648",
+      "used":  "413416841216"
+    }
+  },
+  "memory":  {
+    "total":  "17179869184"
+  },
+  "cpu":  {
+    "count":  8,
+    "countLogical":  8
+  },
+  "apple":  {
+    "name":  "Apple M2",
+    "ecpuCores":  4,
+    "pcpuCores":  4,
+    "gpuCores":  10,
+    "memoryGb":  16,
+    "swapTotalBytes":  "3221225472",
+    "ramTotalBytes":  "17179869184"
+  }
+}
