@@ -2,6 +2,10 @@
 
 The project requires (kaggle authentication)[https://www.kaggle.com/docs/api] to download the dataset. ("Go to the 'Account' tab of your user profile and select 'Create New Token'. This will trigger the download of kaggle.json, a file containing your API credentials.")
 
+## General comments on how to run
+- Config files are present in 'configs/'
+    - 'config.yaml': Defines the fixed configuration for a single experiment or training run.
+    - 'sweep.yaml': Defines a hyperparameter sweep experiment with specific ranges distributions, or lists of hyperparameters to explore (e.g., lr: log_uniform or epochs: [10, 15, 25]). It also includes the method for exploring the hyperparameter space, such as random, grid, or bayesian, as well as a metric to optimize. *To run sweep.yaml in your machine you must change the command to run your own env* (MAYBE MAKE THIS DYNAMIC WITH DOCKER FILE?)
 
 # 10_Animal_Classification
 This is the project work for group 44 in the course: Machine Learning Operations at DTU. This group consists of: Rasmus Laansalu, Marcos Bauch Mira, Viraj Rajurkar, Anke van de Watering, Abrahim Abbas. 
