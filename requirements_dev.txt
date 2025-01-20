@@ -20,7 +20,7 @@ mkdocstrings-python==1.12.2
 # data 
 kagglehub
 mlcroissant
-kaggle 
+kaggle==1.6.17 
 
 # logger
 loguru
