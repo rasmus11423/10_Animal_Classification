@@ -3,6 +3,7 @@ import torch
 import torch.nn as nn
 from src.animal_classification.model import AnimalClassifier
 
+
 class TestAnimalClassifier(unittest.TestCase):
     def setUp(self):
         self.model = AnimalClassifier()
@@ -35,6 +36,7 @@ class TestAnimalClassifier(unittest.TestCase):
         for name, param in self.model.named_parameters():
             with self.subTest(layer=name):
                 self.assertTrue(param.requires_grad)
+
 
 if __name__ == "__main__":
     unittest.main()

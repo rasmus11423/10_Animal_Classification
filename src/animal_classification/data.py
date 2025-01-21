@@ -38,7 +38,6 @@ def normalize(images: torch.Tensor) -> torch.Tensor:
     return (images - images.mean()) / images.std()
 
 
-
 class AnimalDataSet(Dataset):
     """My custom dataset."""
 
@@ -164,14 +163,13 @@ def partition_dataset(folder: str = "data/processed/", split_ratio: float = 0.8)
 
 
 def load_data(rgb=False, train=True):
-
     if rgb:
-        transform = transforms.Compose([transforms.ToTensor(), transforms.Lambda(lambda x: (x - x.mean()) / x.std())
-])
+        transform = transforms.Compose([transforms.ToTensor(), transforms.Lambda(lambda x: (x - x.mean()) / x.std())])
 
     else:
-        transform = transforms.Compose([transforms.Grayscale(1), transforms.ToTensor(), transforms.Lambda(lambda x: (x - x.mean()) / x.std())
-])
+        transform = transforms.Compose(
+            [transforms.Grayscale(1), transforms.ToTensor(), transforms.Lambda(lambda x: (x - x.mean()) / x.std())]
+        )
 
     if train:
         return AnimalDataSet("data/processed/train", transform)
@@ -191,7 +189,6 @@ def preprocess() -> None:
     img, label = dataset[0]
     logger.info("Resizing the data")
 
-  
     for idx, (img, label_idx) in enumerate(dataset):
         img_resized = resize_with_padding(img, 48)
         label = dataset.classes[label_idx]

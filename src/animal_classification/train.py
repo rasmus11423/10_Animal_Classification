@@ -3,6 +3,7 @@ from torch import nn, optim
 from typing import Tuple
 from torch.utils.data import DataLoader
 import typer
+from omegaconf import OmegaConf
 
 import wandb
 from loguru import logger
@@ -14,8 +15,12 @@ from model import AnimalClassifier
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 logger.info(f"Using device: {device}")
 
+# Path to default configuration file
+CONFIG_PATH = "configs/training_configs.yaml"
+
 model = AnimalClassifier()
 model = model.to(device)
+
 
 def training_step(
     images: torch.Tensor, labels, model: nn.Module, criterion: nn.Module, optimizer: torch.optim.Optimizer
@@ -54,17 +59,41 @@ def evaluate(model: nn.Module, dataloader: DataLoader, criterion: nn.Module) -> 
     return avg_loss, accuracy
 
 
-def train(batch_size: int = 10, epochs: int = 10, lr: float = 4e-4) -> None:
+def train(
+    batch_size: int = 10,
+    epochs: int = 10,
+    lr: float = 4e-4,
+    optimizer_name: str = None,
+    criterion_name: str = None,
+    config_path: str = typer.Option(CONFIG_PATH),
+) -> None:
+    """Training the model on the animal data set."""
+    # Loading parameters from configuration file
+    config = OmegaConf.load(config_path)
+    batch_size = config.hyperparameters.batch_size if not batch_size else batch_size
+    epochs = config.hyperparameters.epochs if not epochs else epochs
+    lr = config.optimizer.lr if not lr else lr
+    optimizer_name = config.optimizer.name if not optimizer_name else optimizer_name
+    criterion_name = config.criterion if not criterion_name else criterion_name
+
     logger.info("Initializing wandb project...")
+    # Initializing the wandb project
     wandb.init(
         project="MLops-animal-project",
-        config={"learning_rate": lr, "epochs": epochs, "batch_size": batch_size},
+        config={
+            "learning_rate": lr,
+            "epochs": epochs,
+            "batch_size": batch_size,
+            "optimizer_name": optimizer_name,
+            "criterion_name": criterion_name,
+        },
     )
 
     wandb.watch(model, log_freq=300)  # Track gradients in W&B
 
-    criterion = nn.CrossEntropyLoss()
-    optimizer = optim.AdamW(model.parameters(), lr)
+    # Initializing optimizer and criterion
+    optimizer = getattr(optim, optimizer_name)(model.parameters(), lr=lr)
+    criterion = getattr(nn, criterion_name)()
 
     train_data = load_data(train=True)
     test_data = load_data(train=False)
@@ -73,8 +102,11 @@ def train(batch_size: int = 10, epochs: int = 10, lr: float = 4e-4) -> None:
     train_dataloader = DataLoader(train_data, batch_size=batch_size, shuffle=True)
 
     # Torch Profiler for TensorBoard
+    logger.info("Starting profiler")
     profiler = profile(
-        activities=[ProfilerActivity.CPU, ProfilerActivity.CUDA] if torch.cuda.is_available() else [ProfilerActivity.CPU],
+        activities=[ProfilerActivity.CPU, ProfilerActivity.CUDA]
+        if torch.cuda.is_available()
+        else [ProfilerActivity.CPU],
         on_trace_ready=tensorboard_trace_handler("runs/profiler_logs"),
         with_stack=True,
         record_shapes=True,
@@ -86,6 +118,7 @@ def train(batch_size: int = 10, epochs: int = 10, lr: float = 4e-4) -> None:
             repeat=1,  # Repeat profiling once
         ),
     )
+    logger.info("Profiler started")
 
     with profiler:
         for epoch in range(epochs):
@@ -109,7 +142,7 @@ def train(batch_size: int = 10, epochs: int = 10, lr: float = 4e-4) -> None:
             model.eval()
             with torch.no_grad():
                 val_loss, val_accuracy = evaluate(model, test_dataloader, criterion)
-
+                logger.info(f"Validation loss: {val_loss:.4f}, Validation accuracy: {val_accuracy:.2f}%")
             wandb.log(
                 {
                     "Train accuracy": avg_acc,
@@ -124,7 +157,7 @@ def train(batch_size: int = 10, epochs: int = 10, lr: float = 4e-4) -> None:
     logger.info("Run: tensorboard --logdir runs/profiler_logs")
     logger.info("Saving model...")
     torch.save(model.state_dict(), "models/model.pth")
-
+    logger.info("Model saved to models/model.pth")
 
 if __name__ == "__main__":
     typer.run(train)
