@@ -2,8 +2,14 @@ import unittest
 from unittest.mock import patch, MagicMock
 from pathlib import Path
 from src.animal_classification.data import (
-    AnimalDataSet, normalize, download_data, find_classes,
-    resize_with_padding, partition_dataset, preprocess, load_data
+    AnimalDataSet,
+    normalize,
+    download_data,
+    find_classes,
+    resize_with_padding,
+    partition_dataset,
+    preprocess,
+    load_data,
 )
 from PIL import Image
 import os
@@ -60,12 +66,11 @@ class TestUtilityFunctions(unittest.TestCase):
             self.assertIn("dog", class_to_idx)
             self.assertIn("cat", class_to_idx)
 
-
     def test_resize_with_padding(self):
         img = Image.new("RGB", (50, 100), color=(255, 0, 0))
         resized_img = resize_with_padding(img, 100)
         self.assertEqual(resized_img.size, (100, 100))
-        
+
 
 class TestPartitionDataset(unittest.TestCase):
     def test_partition_dataset(self):
@@ -86,6 +91,7 @@ class TestPartitionDataset(unittest.TestCase):
             self.assertTrue(test_dir.exists())
             self.assertEqual(len(list(train_dir.glob("**/*.jpeg"))), 8)
             self.assertEqual(len(list(test_dir.glob("**/*.jpeg"))), 2)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -17,6 +17,7 @@ def create_environment(ctx: Context) -> None:
         pty=not WINDOWS,
     )
 
+
 @task
 def requirements(ctx: Context) -> None:
     """Install project requirements."""
@@ -43,10 +44,11 @@ def train(ctx: Context) -> None:
     """Train model."""
     ctx.run(f"python src/{PROJECT_NAME}/train.py", echo=True, pty=not WINDOWS)
 
+
 @task
 def evaluate(ctx: Context) -> None:
     """Evaluate model."""
-    ctx.run(f"python src/{PROJECT_NAME}/evaluate.py", echo = True, pty=not WINDOWS)
+    ctx.run(f"python src/{PROJECT_NAME}/evaluate.py", echo=True, pty=not WINDOWS)
 
 
 @task

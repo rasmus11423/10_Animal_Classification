@@ -21,6 +21,7 @@ CONFIG_PATH = "configs/training_configs.yaml"
 model = AnimalClassifier()
 model = model.to(device)
 
+
 def training_step(
     images: torch.Tensor, labels, model: nn.Module, criterion: nn.Module, optimizer: torch.optim.Optimizer
 ) -> Tuple[float, float, float]:
@@ -58,7 +59,14 @@ def evaluate(model: nn.Module, dataloader: DataLoader, criterion: nn.Module) -> 
     return avg_loss, accuracy
 
 
-def train(batch_size: int = 10, epochs: int = 10, lr: float = 4e-4, optimizer_name: str = None, criterion_name: str = None, config_path: str = typer.Option(CONFIG_PATH)) -> None:
+def train(
+    batch_size: int = 10,
+    epochs: int = 10,
+    lr: float = 4e-4,
+    optimizer_name: str = None,
+    criterion_name: str = None,
+    config_path: str = typer.Option(CONFIG_PATH),
+) -> None:
     """Training the model on the animal data set."""
     # Loading parameters from configuration file
     config = OmegaConf.load(config_path)
@@ -72,14 +80,20 @@ def train(batch_size: int = 10, epochs: int = 10, lr: float = 4e-4, optimizer_na
     # Initializing the wandb project
     wandb.init(
         project="MLops-animal-project",
-        config={"learning_rate": lr, "epochs": epochs, "batch_size": batch_size, "optimizer_name":optimizer_name, "criterion_name": criterion_name},
+        config={
+            "learning_rate": lr,
+            "epochs": epochs,
+            "batch_size": batch_size,
+            "optimizer_name": optimizer_name,
+            "criterion_name": criterion_name,
+        },
     )
 
     wandb.watch(model, log_freq=300)  # Track gradients in W&B
 
     # Initializing optimizer and criterion
     optimizer = getattr(optim, optimizer_name)(model.parameters(), lr=lr)
-    criterion = getattr(nn, criterion_name)() 
+    criterion = getattr(nn, criterion_name)()
 
     train_data = load_data(train=True)
     test_data = load_data(train=False)
@@ -89,7 +103,9 @@ def train(batch_size: int = 10, epochs: int = 10, lr: float = 4e-4, optimizer_na
 
     # Torch Profiler for TensorBoard
     profiler = profile(
-        activities=[ProfilerActivity.CPU, ProfilerActivity.CUDA] if torch.cuda.is_available() else [ProfilerActivity.CPU],
+        activities=[ProfilerActivity.CPU, ProfilerActivity.CUDA]
+        if torch.cuda.is_available()
+        else [ProfilerActivity.CPU],
         on_trace_ready=tensorboard_trace_handler("runs/profiler_logs"),
         with_stack=True,
         record_shapes=True,

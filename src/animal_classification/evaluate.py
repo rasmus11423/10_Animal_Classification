@@ -13,7 +13,10 @@ DEVICE = torch.device("cuda" if torch.cuda.is_available() else "mps" if torch.ba
 # A pretrained model
 model_checkpoint = "models/model.pth"
 
-def evaluate(batch_size: int = 10, config_path: str = typer.Option(CONFIG_PATH), model_checkpoint: str = "models/model.pth") -> None:
+
+def evaluate(
+    batch_size: int = 10, config_path: str = typer.Option(CONFIG_PATH), model_checkpoint: str = "models/model.pth"
+) -> None:
     """Evaluating the trained model"""
     # Moving the model to the device
     model = AnimalClassifier().to(DEVICE)
@@ -30,7 +33,7 @@ def evaluate(batch_size: int = 10, config_path: str = typer.Option(CONFIG_PATH),
 
     # Initiating evaluation
     model.eval()
-    correct, total = 0,0
+    correct, total = 0, 0
 
     for img, target in test_dataloader:
         img, target = img.to(DEVICE), target.to(DEVICE)
@@ -39,12 +42,6 @@ def evaluate(batch_size: int = 10, config_path: str = typer.Option(CONFIG_PATH),
         total += target.size(0)
     print(f"Test accuracy: {correct / total}")
 
+
 if __name__ == "__main__":
     typer.run(evaluate)
-
-
-    
-
-
-
-
