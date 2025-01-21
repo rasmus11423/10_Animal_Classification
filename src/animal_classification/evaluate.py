@@ -2,26 +2,31 @@ import torch
 import typer
 from data import load_data
 from model import AnimalClassifier
-#import hydra
-#import os
+from omegaconf import OmegaConf
 
+# Loading the path to the default configuration file
+CONFIG_PATH = "configs/evaluate_configs.yaml"
 
+# Setting the device
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu")
 
+# A pretrained model
 model_checkpoint = "models/model.pth"
 
-#@hydra.main(config_name = "config", config_path = f"{os.getcwd()}/configs", version_base = None)
-def evaluate(model_checkpoint: str = "models/model.pth") -> None:
+def evaluate(batch_size: int = 10, config_path: str = typer.Option(CONFIG_PATH), model_checkpoint: str = "models/model.pth") -> None:
     """Evaluating the trained model"""
-
     # Moving the model to the device
     model = AnimalClassifier().to(DEVICE)
     model.load_state_dict(torch.load(model_checkpoint))
+    # Loading the parameters from the configuration file
+    config = OmegaConf.load(config_path)
+    batch_size = config.hyperparameters.batch_size if not batch_size else batch_size
+
+    print(batch_size)
 
     # Loading the test data
     test_set = load_data(train=False)
-    # TODO make this parameter thingy work 
-    test_dataloader = torch.utils.data.DataLoader(test_set, batch_size = 10)
+    test_dataloader = torch.utils.data.DataLoader(test_set, batch_size)
 
     # Initiating evaluation
     model.eval()

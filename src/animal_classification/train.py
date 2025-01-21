@@ -3,6 +3,7 @@ from torch import nn, optim
 from typing import Tuple
 from torch.utils.data import DataLoader
 import typer
+from omegaconf import OmegaConf
 
 import wandb
 from loguru import logger
@@ -13,6 +14,9 @@ from model import AnimalClassifier
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 logger.info(f"Using device: {device}")
+
+# Path to default configuration file
+CONFIG_PATH = "configs/training_configs.yaml"
 
 model = AnimalClassifier()
 model = model.to(device)
@@ -54,17 +58,28 @@ def evaluate(model: nn.Module, dataloader: DataLoader, criterion: nn.Module) -> 
     return avg_loss, accuracy
 
 
-def train(batch_size: int = 10, epochs: int = 10, lr: float = 4e-4) -> None:
+def train(batch_size: int = 10, epochs: int = 10, lr: float = 4e-4, optimizer_name: str = None, criterion_name: str = None, config_path: str = typer.Option(CONFIG_PATH)) -> None:
+    """Training the model on the animal data set."""
+    # Loading parameters from configuration file
+    config = OmegaConf.load(config_path)
+    batch_size = config.hyperparameters.batch_size if not batch_size else batch_size
+    epochs = config.hyperparameters.epochs if not epochs else epochs
+    lr = config.optimizer.lr if not lr else lr
+    optimizer_name = config.optimizer.name if not optimizer_name else optimizer_name
+    criterion_name = config.criterion if not criterion_name else criterion_name
+
     logger.info("Initializing wandb project...")
+    # Initializing the wandb project
     wandb.init(
         project="MLops-animal-project",
-        config={"learning_rate": lr, "epochs": epochs, "batch_size": batch_size},
+        config={"learning_rate": lr, "epochs": epochs, "batch_size": batch_size, "optimizer_name":optimizer_name, "criterion_name": criterion_name},
     )
 
     wandb.watch(model, log_freq=300)  # Track gradients in W&B
 
-    criterion = nn.CrossEntropyLoss()
-    optimizer = optim.AdamW(model.parameters(), lr)
+    # Initializing optimizer and criterion
+    optimizer = getattr(optim, optimizer_name)(model.parameters(), lr=lr)
+    criterion = getattr(nn, criterion_name)() 
 
     train_data = load_data(train=True)
     test_data = load_data(train=False)

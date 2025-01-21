@@ -1,0 +1,9 @@
+hyperparameters:
+  batch_size: 10
+  epochs: 10
+
+optimizer:
+  name: AdamW
+  lr: 4e-4
+
+criterion: CrossEntropyLoss

@@ -30,3 +30,7 @@ line-length = 120
 
 [tool.coverage.run]
 omit = ["tests/*"]
+
+[project.scripts]
+train = "animal_classification.train:main"
+test = "animal_classification.evaluate:main"
