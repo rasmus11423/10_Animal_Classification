@@ -102,6 +102,7 @@ def train(
     train_dataloader = DataLoader(train_data, batch_size=batch_size, shuffle=True)
 
     # Torch Profiler for TensorBoard
+    logger.info("Starting profiler")
     profiler = profile(
         activities=[ProfilerActivity.CPU, ProfilerActivity.CUDA]
         if torch.cuda.is_available()
@@ -117,6 +118,7 @@ def train(
             repeat=1,  # Repeat profiling once
         ),
     )
+    logger.info("Profiler started")
 
     with profiler:
         for epoch in range(epochs):
@@ -140,7 +142,7 @@ def train(
             model.eval()
             with torch.no_grad():
                 val_loss, val_accuracy = evaluate(model, test_dataloader, criterion)
-
+                logger.info(f"Validation loss: {val_loss:.4f}, Validation accuracy: {val_accuracy:.2f}%")
             wandb.log(
                 {
                     "Train accuracy": avg_acc,
@@ -155,7 +157,7 @@ def train(
     logger.info("Run: tensorboard --logdir runs/profiler_logs")
     logger.info("Saving model...")
     torch.save(model.state_dict(), "models/model.pth")
-
+    logger.info("Model saved to models/model.pth")
 
 if __name__ == "__main__":
     typer.run(train)
