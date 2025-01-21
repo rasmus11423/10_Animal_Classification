@@ -3,8 +3,9 @@
 The project requires (kaggle authentication)[https://www.kaggle.com/docs/api] to download the dataset. ("Go to the 'Account' tab of your user profile and select 'Create New Token'. This will trigger the download of kaggle.json, a file containing your API credentials.")
 
 ## General comments on how to run
-- Config files are present in 'configs/'
-    - 'config.yaml': Defines the fixed configuration for a single experiment or training run.
+- Config files are present in 'configs/'         
+    - 'training_configs.yaml': Define the default configurations of a single training run - including: hyperparameters(batch_size, epochs), optimizer(name, lr), criterion). The parameters in the configuration can be overwritten by parsing arguments into the command line.
+    - 'evaluate_configs.yaml': Defines the default parameters of the evaluation of a model - including: hyperparameters(batch_size). The parameters can be overwritten by parsing arguments into the command line.
     - 'sweep.yaml': Defines a hyperparameter sweep experiment with specific ranges distributions, or lists of hyperparameters to explore (e.g., lr: log_uniform or epochs: [10, 15, 25]). It also includes the method for exploring the hyperparameter space, such as random, grid, or bayesian, as well as a metric to optimize. *To run sweep.yaml in your machine you must change the command to run your own env* (MAYBE MAKE THIS DYNAMIC WITH DOCKER FILE?)
 
 ## Features
