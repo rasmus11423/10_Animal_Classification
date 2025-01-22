@@ -7,6 +7,10 @@ The project requires (kaggle authentication)[https://www.kaggle.com/docs/api] to
     - 'training_configs.yaml': Define the default configurations of a single training run - including: hyperparameters(batch_size, epochs), optimizer(name, lr), criterion). The parameters in the configuration can be overwritten by parsing arguments into the command line.
     - 'evaluate_configs.yaml': Defines the default parameters of the evaluation of a model - including: hyperparameters(batch_size). The parameters can be overwritten by parsing arguments into the command line.
     - 'sweep.yaml': Defines a hyperparameter sweep experiment with specific ranges distributions, or lists of hyperparameters to explore (e.g., lr: log_uniform or epochs: [10, 15, 25]). It also includes the method for exploring the hyperparameter space, such as random, grid, or bayesian, as well as a metric to optimize. *To run sweep.yaml in your machine you must change the command to run your own env* (MAYBE MAKE THIS DYNAMIC WITH DOCKER FILE?)
+    - 'gcloudconfig.yaml': Defines the configuration for the Google Cloud Vertex AI training job.
+
+
+
 
 ## Features
 - (SOMETHING ABOUT W&B)
