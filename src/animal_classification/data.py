@@ -172,9 +172,9 @@ def load_data(rgb=False, train=True):
         )
 
     if train:
-        return AnimalDataSet("data/processed/train", transform)
+        return AnimalDataSet("/gcs/dtumlops_databucket/data/processed/train", transform)
 
-    return AnimalDataSet("data/processed/test", transform)
+    return AnimalDataSet("/gcs/dtumlops_databucket/data/processed/test", transform)
 
 
 def preprocess() -> None:
