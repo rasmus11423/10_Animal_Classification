@@ -12,6 +12,7 @@ from torchvision import transforms
 from PIL import Image
 import math
 from kaggle.api.kaggle_api_extended import KaggleApi
+from google.cloud import storage
 
 
 translate = {
@@ -163,6 +164,32 @@ def partition_dataset(folder: str = "data/processed/", split_ratio: float = 0.8)
         shutil.rmtree(source_folder)
 
 
+def download_processed_data(bucket_name: str, source_path: str, local_path: str = "data/processed") -> None:
+    """Downloads preprocessed data from GCS to local storage."""
+    logger.info(f"Downloading preprocessed data from GCS bucket {bucket_name}")
+    storage_client = storage.Client()
+    bucket = storage_client.bucket(bucket_name)
+    
+    # Create local directory
+    os.makedirs(local_path, exist_ok=True)
+    
+    # Download all files
+    blobs = bucket.list_blobs(prefix=source_path)
+    for blob in blobs:
+        if blob.name.endswith('/'):  # Skip directories
+            continue
+        # Get relative path
+        rel_path = blob.name[len(source_path):].lstrip('/')
+        # Construct local file path
+        local_file_path = os.path.join(local_path, rel_path)
+        # Create directories if they don't exist
+        os.makedirs(os.path.dirname(local_file_path), exist_ok=True)
+        # Download file
+        blob.download_to_filename(local_file_path)
+    
+    logger.info(f"Data downloaded to {local_path}")
+
+
 def load_data(rgb=False, train=True):
     if rgb:
         transform = transforms.Compose([transforms.ToTensor(), transforms.Lambda(lambda x: (x - x.mean()) / x.std())])
@@ -173,9 +200,9 @@ def load_data(rgb=False, train=True):
         )
 
     if train:
-        return AnimalDataSet("/gcs/dtumlops_databucket/data/processed/train", transform)
+        return AnimalDataSet("data/processed/train", transform)
 
-    return AnimalDataSet("/gcs/dtumlops_databucket/data/processed/test", transform)
+    return AnimalDataSet("data/processed/test", transform)
 
 
 def preprocess() -> None:
