@@ -1,12 +1,9 @@
-# config_gpu.yaml
 workerPoolSpecs:
-  machineSpec:
-    machineType: n1-highmem-2  # Updated machine type
-    acceleratorType: NVIDIA_TESLA_T4
-    acceleratorCount: 1
-  replicaCount: 1
-  containerSpec:
-    imageUri: gcr.io/<project-id>/<docker-img>
-    env:  # Added environment variables
-      - name: WANDB_API_KEY
-        value: $WANDB_API_KEY
+    machineSpec:
+        machineType: n1-highmem-2
+    replicaCount: 1
+    containerSpec:
+        imageUri: europe-west1-docker.pkg.dev/dtumlops-447611/animal-cls/train:latest
+        env:
+        - name: WANDB_API_KEY
+          value: 2ee82ec9afa5930e5376f49d63571b2fcc8cbfe9
