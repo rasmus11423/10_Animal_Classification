@@ -70,6 +70,7 @@ def train(
     """Training the model on the animal data set."""
     # Loading parameters from configuration file
     config = OmegaConf.load(config_path)
+    logger.info(f"Config loaded from {config_path}")
     batch_size = config.hyperparameters.batch_size if not batch_size else batch_size
     epochs = config.hyperparameters.epochs if not epochs else epochs
     lr = config.optimizer.lr if not lr else lr
@@ -118,41 +119,43 @@ def train(
             repeat=1,  # Repeat profiling once
         ),
     )
-    logger.info("Profiler started")
+    
+    profiler.start()
+    
+    for epoch in range(epochs):
+        run_loss = 0
+        run_acc = 0
 
-    with profiler:
-        for epoch in range(epochs):
-            run_loss = 0
-            run_acc = 0
+        for idx, (images, labels) in enumerate(train_dataloader):
+            images, labels = images.to(device), labels.to(device)
 
-            for idx, (images, labels) in enumerate(train_dataloader):
-                images, labels = images.to(device), labels.to(device)
+            model.train()
+            batch_loss, batch_acc, predictions = training_step(images, labels, model, criterion, optimizer)
 
-                model.train()
-                batch_loss, batch_acc, predictions = training_step(images, labels, model, criterion, optimizer)
+            run_acc += batch_acc
+            run_loss += batch_loss
 
-                run_acc += batch_acc
-                run_loss += batch_loss
+            profiler.step()  # Step the profiler after each iteration
 
-                profiler.step()  # Step the profiler after each iteration
+        avg_loss, avg_acc = run_loss / len(train_dataloader), run_acc / len(train_dataloader)
+        logger.info(f"Epoch {epoch + 1}, Loss: {avg_loss:.4f}, Accuracy: {avg_acc:.2f}%")
 
-            avg_loss, avg_acc = run_loss / len(train_dataloader), run_acc / len(train_dataloader)
-            logger.info(f"Epoch {epoch + 1}, Loss: {avg_loss:.4f}, Accuracy: {avg_acc:.2f}%")
+        model.eval()
+        with torch.no_grad():
+            val_loss, val_accuracy = evaluate(model, test_dataloader, criterion)
+            logger.info(f"Validation loss: {val_loss:.4f}, Validation accuracy: {val_accuracy:.2f}%")
+        wandb.log(
+            {
+                "Train accuracy": avg_acc,
+                "Train loss": avg_loss,
+                "Validation loss": val_loss,
+                "Validation accuracy": val_accuracy,
+                "epoch": epoch,
+            }
+        )
 
-            model.eval()
-            with torch.no_grad():
-                val_loss, val_accuracy = evaluate(model, test_dataloader, criterion)
-                logger.info(f"Validation loss: {val_loss:.4f}, Validation accuracy: {val_accuracy:.2f}%")
-            wandb.log(
-                {
-                    "Train accuracy": avg_acc,
-                    "Train loss": avg_loss,
-                    "Validation loss": val_loss,
-                    "Validation accuracy": val_accuracy,
-                    "epoch": epoch,
-                }
-            )
-
+    profiler.stop()
+    
     logger.info("Training completed. Check TensorBoard for profiler logs.")
     logger.info("Run: tensorboard --logdir runs/profiler_logs")
     logger.info("Saving model...")
