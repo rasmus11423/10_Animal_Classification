@@ -173,19 +173,8 @@ def download_processed_data(bucket_name: str, source_path: str, local_path: str 
     # Create local directory
     os.makedirs(local_path, exist_ok=True)
     
-    # Download all files
-    blobs = bucket.list_blobs(prefix=source_path)
-    for blob in blobs:
-        if blob.name.endswith('/'):  # Skip directories
-            continue
-        # Get relative path
-        rel_path = blob.name[len(source_path):].lstrip('/')
-        # Construct local file path
-        local_file_path = os.path.join(local_path, rel_path)
-        # Create directories if they don't exist
-        os.makedirs(os.path.dirname(local_file_path), exist_ok=True)
-        # Download file
-        blob.download_to_filename(local_file_path)
+    # Download entire directory at once
+    bucket.blob(source_path).download_to_directory(local_path)
     
     logger.info(f"Data downloaded to {local_path}")
 

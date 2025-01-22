@@ -10,7 +10,15 @@ The project requires (kaggle authentication)[https://www.kaggle.com/docs/api] to
     - 'gcloudconfig.yaml': Defines the configuration for the Google Cloud Vertex AI training job.
 
 
+to run the training job on vertex ai, you must call this command:
+'''
+gcloud builds submit --config=configs/vertex_ai_train.yaml .
+'''
+Remember to push the changes to main, so that the docker image is updated. Otherwise you will need to manually update the image in the vertex ai training job by running: 
 
+'''
+gcloud builds submit . --config=cloudbuild.yaml
+'''
 
 ## Features
 - (SOMETHING ABOUT W&B)

@@ -12,7 +12,7 @@ import torchvision.transforms as transforms
 async def lifespan(app: FastAPI):
 
     global model 
-    MODEL_PATH = "model.pth"
+    MODEL_PATH = "models/model.pth"
     model = AnimalClassifier()
     model.load_state_dict(torch.load(MODEL_PATH))
     model.eval()
