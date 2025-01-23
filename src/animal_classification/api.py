@@ -3,6 +3,7 @@ from contextlib import asynccontextmanager
 from fastapi import UploadFile, File
 from .model import AnimalClassifier
 import torch
+from .data import find_classes
 from PIL import Image
 import numpy as np 
 import torchvision.transforms as transforms
@@ -42,8 +43,9 @@ app  = FastAPI(lifespan=lifespan)
 async def get_prediction(image: UploadFile = File(...)):
     image = preprocess_image(image) 
     prediction = model(image)
-    # TODO: Test this function, it should return the index of the predicted class
-    # TOD: We need to map this index back to an animal
-    return {"prediction": int(prediction.argmax())}
+    classes, class_to_idx = find_classes("/data")
+    predicted_class_idx = int(prediction.argmax())
+    predicted_class = classes[predicted_class_idx]
+    return {"prediction": predicted_class}
 
 
