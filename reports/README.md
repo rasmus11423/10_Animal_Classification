@@ -418,7 +418,8 @@ Debugging the code was, as the example suggests, dependent on each group member,
 >
 > Answer:
 
---- question 17 fill here ---
+Our project makes use of several GCP services. They are listed together with their purpose. VM instances from Compute Engine provide compute power to run our training jobs, deploy models, and perform other tasks with VertexAI. Training from VertexAI helps abstract and manage the underlying VM instance infrastructure, simplifying the building, deployment, and scaling of our model. Buckets from GCP Cloud Storage allow us to store, organize, and manage sharing access to our Animals dataset without using GitHub. Cloud run is used in our project to run fully containerized applications and hosting APIs with ease (without necessarily using a server). Our project also makes use of “APIs and Services” which is the principal location where one is able to manage, discover, enable, and monitor GCP’s various API services. We worked with credentials, API quotas, API dashboard (traffic, errors, median latency).
+
 
 ### Question 18
 
