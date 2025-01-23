@@ -3,7 +3,6 @@ import typer
 from torch.utils.data import Dataset
 from loguru import logger
 import os
-#from kaggle.api.kaggle_api_extended import KaggleApi
 from typing import Tuple, List, Dict
 import pathlib
 import torchvision.transforms.functional as F
@@ -11,6 +10,8 @@ import torch
 from torchvision import transforms
 from PIL import Image
 import math
+from google.cloud import storage
+import zipfile
 
 
 translate = {
@@ -75,16 +76,18 @@ class AnimalDataSet(Dataset):
 #     raw_data_path = os.path.abspath(raw_data_path)
 #     os.makedirs(raw_data_path, exist_ok=True)
 
-#     api = KaggleApi()
+    if len(os.listdir(raw_data_path)) > 1:
+        logger.info("Data already exists. Skipping download.")
+        return
 
-#     try:
-#         api.authenticate()
-#     except Exception as e:
-#         raise f"Encountered error: {e}, please make sure to set your Kaggle secret token."
+    # Only import and authenticate when needed
+    from kaggle.api.kaggle_api_extended import KaggleApi
+    api = KaggleApi()
 
-#     if len(os.listdir(raw_data_path)) > 1:
-#         logger.info("Data already exists. Skipping download.")
-#         return
+    try:
+        api.authenticate()
+    except Exception as e:
+        raise Exception(f"Encountered error: {e}, please make sure to set your Kaggle secret token.")
 
 #     logger.info("Downloading the dataset from Kaggle...")
 #     api.dataset_download_files("alessiocorrado99/animals10", path=raw_data_path, unzip=True)
@@ -162,6 +165,30 @@ def partition_dataset(folder: str = "data/processed/", split_ratio: float = 0.8)
         shutil.rmtree(source_folder)
 
 
+def download_processed_data(bucket_name: str, source_path: str, local_path: str = "data") -> None:
+    """Downloads zipped data directory from GCS and extracts it."""
+    import zipfile
+    
+    logger.info(f"Downloading data from GCS bucket {bucket_name}")
+    storage_client = storage.Client()
+    bucket = storage_client.bucket(bucket_name)
+    
+    # Download the zip file
+    zip_path = "data.zip"
+    
+    logger.info("Downloading zip file...")
+    blob = bucket.blob(f"{source_path}/data.zip")
+    blob.download_to_filename(zip_path)
+    
+    # Extract the zip file
+    logger.info("Extracting zip file...")
+    with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+        zip_ref.extractall(local_path)  # Extract to the specified local path
+    
+    os.remove(zip_path)
+    logger.info(f"Data extracted to {local_path}")
+
+
 def load_data(rgb=False, train=True):
     if rgb:
         transform = transforms.Compose([transforms.ToTensor(), transforms.Lambda(lambda x: (x - x.mean()) / x.std())])
@@ -172,9 +199,9 @@ def load_data(rgb=False, train=True):
         )
 
     if train:
-        return AnimalDataSet("/gcs/dtumlops_databucket/data/processed/train", transform)
+        return AnimalDataSet("data/processed/train", transform)
 
-    return AnimalDataSet("/gcs/dtumlops_databucket/data/processed/test", transform)
+    return AnimalDataSet("data/processed/test", transform)
 
 
 def preprocess() -> None:

@@ -12,7 +12,7 @@ import torchvision.transforms as transforms
 async def lifespan(app: FastAPI):
 
     global model 
-    MODEL_PATH = "model.pth"
+    MODEL_PATH = "models/model.pth"
     model = AnimalClassifier()
     model.load_state_dict(torch.load(MODEL_PATH))
     model.eval()
@@ -25,7 +25,7 @@ async def lifespan(app: FastAPI):
 def preprocess_image(image: UploadFile):
     image = Image.open(image.file)
     image = image.resize((48, 48))
-    if image.ndim == 3:
+    if image.mode == "RGB":
         image = image.convert("L")
 
     transform = transforms.Compose([
@@ -38,10 +38,12 @@ def preprocess_image(image: UploadFile):
 app  = FastAPI(lifespan=lifespan) 
 
 
-@app.get("/get_prediction")
+@app.post("/get_prediction")
 async def get_prediction(image: UploadFile = File(...)):
     image = preprocess_image(image) 
     prediction = model(image)
-    return {"prediction": prediction}
+    # TODO: Test this function, it should return the index of the predicted class
+    # TOD: We need to map this index back to an animal
+    return {"prediction": int(prediction.argmax())}
 
 

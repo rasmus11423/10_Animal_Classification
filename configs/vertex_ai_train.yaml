@@ -1,3 +1,6 @@
+substitutions:
+  _VERTEX_TRAIN_CONFIG: 'configs/config_cpu.yaml'
+
 steps:
 - name: "alpine"
   id: "Replace values in the training config"
@@ -6,8 +9,8 @@ steps:
     - '-c'
     - |
       apk add --no-cache gettext
-      envsubst < config.yaml > config.yaml.tmp
-      mv config.yaml.tmp config.yaml
+      envsubst < configs/config_cpu.yaml > configs/config_cpu.yaml.tmp
+      mv configs/config_cpu.yaml.tmp configs/config_cpu.yaml
   secretEnv: ['WANDB_API_KEY']
 
 - name: 'alpine'
@@ -17,7 +20,7 @@ steps:
   args:
     - '-c'
     - |
-      cat config.yaml
+      cat configs/config_cpu.yaml
 
 - name: 'gcr.io/cloud-builders/gcloud'
   id: 'Train on vertex AI'
@@ -29,13 +32,11 @@ steps:
     '--region',
     'europe-west1',
     '--display-name',
-    'example-mlops-job',
+    'run-animal-train',
     '--config',
     '${_VERTEX_TRAIN_CONFIG}',
   ]
-substitutions:
-  _VERTEX_TRAIN_CONFIG: 'gcloudconfig.yaml'
 availableSecrets:
   secretManager:
-  - versionName: projects/$PROJECT_ID/secrets/WANDB_API_KEY/versions/latest
+  - versionName: projects/dtumlops-447611/secrets/WANDB_API_KEY/versions/latest
     env: 'WANDB_API_KEY'

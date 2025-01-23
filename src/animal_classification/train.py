@@ -9,7 +9,7 @@ import wandb
 from loguru import logger
 from torch.profiler import profile, ProfilerActivity, tensorboard_trace_handler
 
-from data import load_data
+from data import load_data, download_processed_data
 from model import AnimalClassifier
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -68,6 +68,14 @@ def train(
     config_path: str = typer.Option(CONFIG_PATH),
 ) -> None:
     """Training the model on the animal data set."""
+
+    # Download preprocessed data at the start
+    download_processed_data(
+        bucket_name="dtumlops_databucket",
+        source_path="data/processed",
+        local_path="data/processed"
+    )
+    
     # Loading parameters from configuration file
     config = OmegaConf.load(config_path)
     logger.info(f"Config loaded from {config_path}")
@@ -96,11 +104,25 @@ def train(
     optimizer = getattr(optim, optimizer_name)(model.parameters(), lr=lr)
     criterion = getattr(nn, criterion_name)()
 
-    train_data = load_data(train=True)
-    test_data = load_data(train=False)
+    train_data = load_data(rgb=True, train=True)
+    test_data = load_data(rgb=True, train=False)
 
-    test_dataloader = DataLoader(test_data, batch_size=batch_size, shuffle=True)
-    train_dataloader = DataLoader(train_data, batch_size=batch_size, shuffle=True)
+    test_dataloader = DataLoader(
+        test_data, 
+        batch_size=batch_size, 
+        shuffle=True,
+        num_workers=4,  # Parallel loading
+        prefetch_factor=2,  # Load 2 batches per worker in advance
+        pin_memory=True  # Faster data transfer to GPU
+    )
+    train_dataloader = DataLoader(
+        train_data, 
+        batch_size=batch_size, 
+        shuffle=True,
+        num_workers=4,
+        prefetch_factor=2,
+        pin_memory=True
+    )
 
     # Torch Profiler for TensorBoard
     logger.info("Starting profiler")
@@ -120,12 +142,12 @@ def train(
         ),
     )
     
+    logger.info("Starting training")
     profiler.start()
     
     for epoch in range(epochs):
         run_loss = 0
         run_acc = 0
-
         for idx, (images, labels) in enumerate(train_dataloader):
             images, labels = images.to(device), labels.to(device)
 

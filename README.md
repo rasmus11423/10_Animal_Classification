@@ -7,10 +7,38 @@ The project requires (kaggle authentication)[https://www.kaggle.com/docs/api] to
     - 'training_configs.yaml': Define the default configurations of a single training run - including: hyperparameters(batch_size, epochs), optimizer(name, lr), criterion). The parameters in the configuration can be overwritten by parsing arguments into the command line.
     - 'evaluate_configs.yaml': Defines the default parameters of the evaluation of a model - including: hyperparameters(batch_size). The parameters can be overwritten by parsing arguments into the command line.
     - 'sweep.yaml': Defines a hyperparameter sweep experiment with specific ranges distributions, or lists of hyperparameters to explore (e.g., lr: log_uniform or epochs: [10, 15, 25]). It also includes the method for exploring the hyperparameter space, such as random, grid, or bayesian, as well as a metric to optimize. *To run sweep.yaml in your machine you must change the command to run your own env* (MAYBE MAKE THIS DYNAMIC WITH DOCKER FILE?)
+    - 'gcloudconfig.yaml': Defines the configuration for the Google Cloud Vertex AI training job.
+
+
+to run the training job on vertex ai, you must call this command:
+'''
+gcloud builds submit --config=configs/vertex_ai_train.yaml .
+'''
+Remember to push the changes to main, so that the docker image is updated. Otherwise you will need to manually update the image in the vertex ai training job by running: 
+
+'''
+gcloud builds submit . --config=cloudbuild_train.yaml
+'''
+
+
+to deploy the api, you must call this command:
+
+'''
+gcloud builds submit . --config=cloudbuild_api.yaml
+'''
+
+
 
 ## Features
 - (SOMETHING ABOUT W&B)
 - The project features a torch profiler, where each training is logged within 'runs/profiler_logs' and can be accessed via 'tensorboard --logdir=runs/profiler_logs'. Profilers are used to identify bottlenecks in the training process and optimize the model's performance. For instance, it identifies the most time-consuming operations in the training process, such as data loading, forward and backward passes, and optimizer steps.
+- The project features a wandb logger, where each training is logged within 'runs/wandb' and can be accessed via 'wandb.init()'. The logger is used to log the training process, including the loss, accuracy, and images along with the model's predictions and true labels.
+- github actions: 
+    * unit tests
+    * linting
+    * type checking
+    * dependabot
+
 
 # 10_Animal_Classification
 This is the project work for group 44 in the course: Machine Learning Operations at DTU. This group consists of: Rasmus Laansalu, Marcos Bauch Mira, Viraj Rajurkar, Anke van de Watering, Abrahim Abbas. 
