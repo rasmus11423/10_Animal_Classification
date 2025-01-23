@@ -1,6 +1,6 @@
 hyperparameters:
-  batch_size: 65
-  epochs: 10
+  batch_size: 70
+  epochs: 6
 
 optimizer:
   name: AdamW
