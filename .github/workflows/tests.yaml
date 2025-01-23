@@ -37,5 +37,5 @@ jobs:
 
       - name: Run tests & coverage
         run: |
-          coverage run -m pytest tests/
+          coverage run --omit='*/tmp/*,*/temp/*' -m pytest tests/
           coverage report -m
