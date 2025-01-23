@@ -7,7 +7,6 @@ from PIL import Image
 import numpy as np 
 import torchvision.transforms as transforms
 
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
 
@@ -35,7 +34,6 @@ async def lifespan(app: FastAPI):
     del model 
 
 
-
 def preprocess_image(image: UploadFile):
     image = Image.open(image.file)
     image = image.resize((48, 48))
@@ -55,10 +53,8 @@ app  = FastAPI(lifespan=lifespan)
 @app.post("/get_prediction")
 async def get_prediction(image: UploadFile = File(...)):
 
-
     image = preprocess_image(image) 
     prediction = model(image)
     predicted_class_idx = int(prediction.argmax())
     predicted_class = idx_to_class[predicted_class_idx]
     return {"prediction": predicted_class}
-
