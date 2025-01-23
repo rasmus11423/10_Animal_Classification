@@ -228,7 +228,7 @@ We used ruff for linting and formatting. We used the library typing for types an
 > Answer:
 
 --- question 7 fill here ---
-In total we have implemented X tests. Primarily we are testing the data.py file, the model.py file, train.py and the api.py files as these are the most critical parts of our application.
+In total we have implemented 13 tests. Primarily we are testing the data.py file, the model.py file and the api.py files as these are the most critical parts of our application. 
 
 ### Question 8
 
@@ -244,7 +244,7 @@ In total we have implemented X tests. Primarily we are testing the data.py file,
 > Answer:
 
 --- question 8 fill here ---
-The total coverage of the code is X%, which includes all our source code. We are close to 100% of the code coverage, but even if we were at 100% we would not trust it to be error free. This is because the coverage only checks if the code is executed, not if the code is correct. It is possible to have a code that is executed but is not correct, so the coverage is not a guarantee of the code being error free.
+The total coverage of the code is 63%, which includes all our source code. We are close to 100% of the code coverage, but even if we were at 100% we would not trust it to be error free. This is because the coverage only checks if the code is executed, not if the code is correct. It is possible to have a code that is executed but is not correct, so the coverage is not a guarantee of the code being error free.
 
 ### Question 9
 
