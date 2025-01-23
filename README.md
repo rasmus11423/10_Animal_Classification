@@ -20,7 +20,6 @@ Remember to push the changes to main, so that the docker image is updated. Other
 gcloud builds submit . --config=cloudbuild_train.yaml
 '''
 
-
 to deploy the api, you must call this command:
 
 '''

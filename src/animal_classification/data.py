@@ -47,7 +47,8 @@ class AnimalDataSet(Dataset):
         self.transform = transform
         self.image_paths = list(pathlib.Path(self.data_path).glob("**/*.jpeg"))
         self.classes, self.class_to_idx = find_classes(self.data_path)
-
+        self.idx_to_class = {v: k for k, v in self.class_to_idx.items()}
+    
     def __len__(self) -> int:
         """Return the length of the dataset."""
         return len(self.image_paths)
@@ -96,8 +97,14 @@ def download_data(raw_data_path: str = "./data/raw") -> None:
 
 
 def find_classes(directory: str) -> Tuple[List[str], Dict[str, int]]:
-    classes = os.listdir(directory)  # get all the class names
+    # Get only directories, ignore hidden files and regular files
+    classes = sorted([d for d in os.listdir(directory) 
+                     if os.path.isdir(os.path.join(directory, d)) 
+                     and not d.startswith('.')])
+    
     class_to_idx = {class_name: idx for idx, class_name in enumerate(classes)}
+    logger.info(f"Found classes: {classes}")
+    logger.info(f"Class to index mapping: {class_to_idx}")
     return classes, class_to_idx
 
 
@@ -168,6 +175,10 @@ def partition_dataset(folder: str = "data/processed/", split_ratio: float = 0.8)
 def download_processed_data(bucket_name: str, source_path: str, local_path: str = "data") -> None:
     """Downloads zipped data directory from GCS and extracts it."""
     import zipfile
+    
+    if os.path.exists("data"):
+        logger.info(f"Data already exists. Skipping download.")
+        return
     
     logger.info(f"Downloading data from GCS bucket {bucket_name}")
     storage_client = storage.Client()

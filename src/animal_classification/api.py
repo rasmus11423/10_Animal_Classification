@@ -13,18 +13,19 @@ async def lifespan(app: FastAPI):
 
     global model, idx_to_class
 
-    idx_to_class = {
-        0: "dog",
-        1: "horse", 
-        2: "elephant",
-        3: "butterfly",
-        4: "chicken",
-        5: "cat",
-        6: "cow",
-        7: "sheep",
-        8: "spider",
-        9: "squirrel"
+    idx_to_class= {
+        "0": "butterfly",
+        "1": "cat",
+        "2": "chicken",
+        "3": "cow",
+        "4": "dog",
+        "5": "elephant",
+        "6": "horse",
+        "7": "sheep",
+        "8": "spider",
+        "9": "squirrel"
     }
+
     MODEL_PATH = "models/model.pth"
     model = AnimalClassifier()
     model.load_state_dict(torch.load(MODEL_PATH))
