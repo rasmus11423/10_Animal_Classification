@@ -17,6 +17,7 @@ class AnimalClassifier(nn.Module):
             nn.Flatten(),
             nn.Linear(64 * 12 * 12, 128),
             nn.ReLU(),
+            nn.Dropout(0.25),
             nn.Linear(128, 10),
         )
 

@@ -72,8 +72,8 @@ def train(
     # Download preprocessed data at the start
     download_processed_data(
         bucket_name="dtumlops_databucket",
-        source_path="data/processed",
-        local_path="data/processed"
+        source_path="data",
+        local_path=""
     )
     
     # Loading parameters from configuration file
@@ -104,23 +104,21 @@ def train(
     optimizer = getattr(optim, optimizer_name)(model.parameters(), lr=lr)
     criterion = getattr(nn, criterion_name)()
 
-    train_data = load_data(rgb=True, train=True)
-    test_data = load_data(rgb=True, train=False)
+    train_data = load_data(rgb=False, train=True)
+    test_data = load_data(rgb=False, train=False)
 
     test_dataloader = DataLoader(
         test_data, 
         batch_size=batch_size, 
         shuffle=True,
-        num_workers=4,  # Parallel loading
-        prefetch_factor=2,  # Load 2 batches per worker in advance
+        num_workers=0,  # Parallel loading
         pin_memory=True  # Faster data transfer to GPU
     )
     train_dataloader = DataLoader(
         train_data, 
         batch_size=batch_size, 
         shuffle=True,
-        num_workers=4,
-        prefetch_factor=2,
+        num_workers=0,
         pin_memory=True
     )
 
@@ -152,6 +150,7 @@ def train(
             images, labels = images.to(device), labels.to(device)
 
             model.train()
+
             batch_loss, batch_acc, predictions = training_step(images, labels, model, criterion, optimizer)
 
             run_acc += batch_acc
