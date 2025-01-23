@@ -72,9 +72,9 @@ class AnimalDataSet(Dataset):
         image_path = self.image_paths[index]
         return Image.open(image_path)
 
-# def download_data(raw_data_path: str = "./data/raw") -> None:
-#     raw_data_path = os.path.abspath(raw_data_path)
-#     os.makedirs(raw_data_path, exist_ok=True)
+def download_data(raw_data_path: str = "./data/raw") -> None:
+    raw_data_path = os.path.abspath(raw_data_path)
+    os.makedirs(raw_data_path, exist_ok=True)
 
     if len(os.listdir(raw_data_path)) > 1:
         logger.info("Data already exists. Skipping download.")
@@ -89,9 +89,9 @@ class AnimalDataSet(Dataset):
     except Exception as e:
         raise Exception(f"Encountered error: {e}, please make sure to set your Kaggle secret token.")
 
-#     logger.info("Downloading the dataset from Kaggle...")
-#     api.dataset_download_files("alessiocorrado99/animals10", path=raw_data_path, unzip=True)
-#     logger.info(f"Dataset successfully downloaded to: {raw_data_path}")
+    logger.info("Downloading the dataset from Kaggle...")
+    api.dataset_download_files("alessiocorrado99/animals10", path=raw_data_path, unzip=True)
+    logger.info(f"Dataset successfully downloaded to: {raw_data_path}")
 
 
 
