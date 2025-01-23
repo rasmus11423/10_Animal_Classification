@@ -14,4 +14,6 @@ COPY models/model.pth models/model.pth
 RUN pip install -r requirements.txt --no-cache-dir --verbose
 RUN pip install . --no-deps --no-cache-dir --verbose
 
-ENTRYPOINT ["uvicorn", "src/animal_classification/api:app", "--host", "0.0.0.0", "--port", "8000"]
+# Document the default port
+EXPOSE $PORT
+CMD exec uvicorn src.animal_classification.api:app --host 0.0.0.0 --port $PORT --workers 1

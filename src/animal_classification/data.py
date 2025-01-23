@@ -11,6 +11,7 @@ from torchvision import transforms
 from PIL import Image
 import math
 from google.cloud import storage
+import zipfile
 
 
 translate = {
@@ -164,19 +165,28 @@ def partition_dataset(folder: str = "data/processed/", split_ratio: float = 0.8)
         shutil.rmtree(source_folder)
 
 
-def download_processed_data(bucket_name: str, source_path: str, local_path: str = "data/processed") -> None:
-    """Downloads preprocessed data from GCS to local storage."""
-    logger.info(f"Downloading preprocessed data from GCS bucket {bucket_name}")
+def download_processed_data(bucket_name: str, source_path: str, local_path: str = "data") -> None:
+    """Downloads zipped data directory from GCS and extracts it."""
+    import zipfile
+    
+    logger.info(f"Downloading data from GCS bucket {bucket_name}")
     storage_client = storage.Client()
     bucket = storage_client.bucket(bucket_name)
     
-    # Create local directory
-    os.makedirs(local_path, exist_ok=True)
+    # Download the zip file
+    zip_path = "data.zip"
     
-    # Download entire directory at once
-    bucket.blob(source_path).download_to_directory(local_path)
+    logger.info("Downloading zip file...")
+    blob = bucket.blob(f"{source_path}/data.zip")
+    blob.download_to_filename(zip_path)
     
-    logger.info(f"Data downloaded to {local_path}")
+    # Extract the zip file
+    logger.info("Extracting zip file...")
+    with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+        zip_ref.extractall(local_path)  # Extract to the specified local path
+    
+    os.remove(zip_path)
+    logger.info(f"Data extracted to {local_path}")
 
 
 def load_data(rgb=False, train=True):
