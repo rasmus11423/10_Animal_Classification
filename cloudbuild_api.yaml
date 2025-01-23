@@ -29,8 +29,7 @@ steps:
     'managed',
     '--memory',
     '1Gi',
-    '--allow-unauthenticated',
-    '-no-allow-unauthenticated'
-  ]
+    '--allow-unauthenticated'
+      ]
 options:
   logging: CLOUD_LOGGING_ONLY
