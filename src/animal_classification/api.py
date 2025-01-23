@@ -30,7 +30,7 @@ async def lifespan(app: FastAPI):
     model = AnimalClassifier()
     model.load_state_dict(torch.load(MODEL_PATH))
     model.eval()
-    yield 
+    yield
     print("Shutting down...")
     del model 
 
