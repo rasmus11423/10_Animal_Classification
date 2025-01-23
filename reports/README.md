@@ -228,7 +228,7 @@ We used ruff for linting and formatting. We used the library typing for types an
 > Answer:
 
 --- question 7 fill here ---
-In total we have implemented X tests. Primarily we are testing the data.py file, the model.py file, train.py and the api.py files as these are the most critical parts of our application.
+In total we have implemented 13 tests. Primarily we are testing the data.py file, the model.py file and the api.py files as these are the most critical parts of our application. 
 
 ### Question 8
 
@@ -244,7 +244,7 @@ In total we have implemented X tests. Primarily we are testing the data.py file,
 > Answer:
 
 --- question 8 fill here ---
-The total coverage of the code is X%, which includes all our source code. We are close to 100% of the code coverage, but even if we were at 100% we would not trust it to be error free. This is because the coverage only checks if the code is executed, not if the code is correct. It is possible to have a code that is executed but is not correct, so the coverage is not a guarantee of the code being error free.
+The total coverage of the code is 63%, which includes all our source code. We are close to 100% of the code coverage, but even if we were at 100% we would not trust it to be error free. This is because the coverage only checks if the code is executed, not if the code is correct. It is possible to have a code that is executed but is not correct, so the coverage is not a guarantee of the code being error free.
 
 ### Question 9
 
@@ -418,7 +418,8 @@ Debugging the code was, as the example suggests, dependent on each group member,
 >
 > Answer:
 
---- question 17 fill here ---
+Our project makes use of several GCP services. They are listed together with their purpose. VM instances from Compute Engine provide compute power to run our training jobs, deploy models, and perform other tasks with VertexAI. Training from VertexAI helps abstract and manage the underlying VM instance infrastructure, simplifying the building, deployment, and scaling of our model. Buckets from GCP Cloud Storage allow us to store, organize, and manage sharing access to our Animals dataset without using GitHub. Cloud run is used in our project to run fully containerized applications and hosting APIs with ease (without necessarily using a server). Our project also makes use of “APIs and Services” which is the principal location where one is able to manage, discover, enable, and monitor GCP’s various API services. We worked with credentials, API quotas, API dashboard (traffic, errors, median latency).
+
 
 ### Question 18
 
