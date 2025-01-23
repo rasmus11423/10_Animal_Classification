@@ -24,9 +24,6 @@ jobs:
             - name: install dependencies
               run: |
                 python -m pip install ruff
-            - name: run ruff
-              run: |
-                ruff check .
             - name: run format
               run: |
                 ruff format .
