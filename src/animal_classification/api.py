@@ -61,8 +61,3 @@ async def get_prediction(image: UploadFile = File(...)):
     predicted_class = idx_to_class[predicted_class_idx]
     return {"prediction": predicted_class}
 
-
-@app.get("/")
-async def read_root():
-    return {"message": "Welcome to the MNIST model inference API!"}
-
