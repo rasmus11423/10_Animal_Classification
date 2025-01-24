@@ -77,7 +77,6 @@ def save_image_to_gcp(image: UploadFile, image_id: str):
     blob = bucket.blob(f"User_data/images/{image_id}.jpg")
     image_buffer.seek(0) 
     blob.upload_from_file(image_buffer, content_type=image.content_type)
-    blob.upload_from_file(image.file, content_type=image.content_type)
     print(f"Image {image_id}.jpg uploaded to GCP bucket.")
 
 
