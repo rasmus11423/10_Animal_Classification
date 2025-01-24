@@ -12,11 +12,8 @@ import json
 import uuid
 from io import BytesIO
 
-<<<<<<< HEAD
-=======
 BUCKET_NAME = "dtumlops_databucket"
 
->>>>>>> monitoring
 @asynccontextmanager
 async def lifespan(app: FastAPI):
 
@@ -94,7 +91,6 @@ def save_prediction_to_gcp(image_id: str, label: str):
 
 
 @app.post("/get_prediction")
-<<<<<<< HEAD
 async def get_prediction(image: UploadFile = File(...)):
 
     image = preprocess_image(image) 
@@ -102,24 +98,3 @@ async def get_prediction(image: UploadFile = File(...)):
     predicted_class_idx = int(prediction.argmax())
     predicted_class = idx_to_class[predicted_class_idx]
     return {"prediction": predicted_class}
-=======
-async def get_prediction(image: UploadFile = File(...), background_tasks: BackgroundTasks = None):
-    image_processed = preprocess_image(image) 
-    prediction = model(image_processed)
-    predicted_class_idx = int(prediction.argmax())
-    predicted_class = idx_to_class[predicted_class_idx]
-
-    # Store image and prediction asynchronously
-    # creating unique id for image
-    image_id = str(uuid.uuid4())
-    save_image_to_gcp(image, image_id)
-    save_prediction_to_gcp(image_id, predicted_class)
-    return {"prediction": predicted_class}
-
-
-
-
-@app.get("/")
-async def root():
-    return {"message": "Welcome to the Animal Classification API!"}
->>>>>>> monitoring
