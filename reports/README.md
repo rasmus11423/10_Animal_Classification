@@ -355,7 +355,7 @@ Thanks to our initial setup, using W&B and sweep configuration files, we ensured
 >
 > Answer:
 ```markdown
-![my_image](figures/<image>.<extension>)
+![runs](reports/figures/runs.jpg)
 ```
 
 
