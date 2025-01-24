@@ -5,3 +5,6 @@ workerPoolSpecs:
     replicaCount: 1
     containerSpec:
         imageUri: europe-west1-docker.pkg.dev/dtumlops-447611/animal-cls/train
+        env:
+        - name: WANDB_API_KEY
+          value: ${WANDB_API_KEY}

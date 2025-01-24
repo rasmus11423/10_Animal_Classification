@@ -9,8 +9,8 @@ from omegaconf import OmegaConf
 
 import wandb
 from loguru import logger
-from torch.profiler import profile, ProfilerActivity, tensorboard_trace_handler
 
+from torch.profiler import profile, ProfilerActivity, tensorboard_trace_handler
 from data import load_data, download_processed_data
 from model import AnimalClassifier
 

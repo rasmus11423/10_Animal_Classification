@@ -198,7 +198,8 @@ def download_processed_data(bucket_name: str, source_path: str, local_path: str 
     
     os.remove(zip_path)
     logger.info(f"Data extracted to {local_path}")
-
+    # remove data/processed/train/dog/18782.jpeg
+    os.remove(os.path.join(local_path, "data/processed/train/dog/18782.jpeg"))
 
 def load_data(rgb=False, train=True):
     if rgb:
