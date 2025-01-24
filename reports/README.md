@@ -434,7 +434,14 @@ Our project makes use of several GCP services. They are listed together with the
 >
 > Answer:
 
---- question 18 fill here ---
+While we successfully utilized the GCP Compute Engine for our project, it was challenging to set up. We faced issues such as disk size errors, invalid machine types, and zone errors. The Compute Engine provided the computational power needed to train our deep learning model.
+
+Initially, we used a VM with the n1-standard-1 machine type, which had limited performance and lacked GPU access. To resolve this, we submitted a GPU quota increase request for allRegions. Once approved, we created a VM with 1 x NVIDIA Tesla T4 GPU, offering the necessary performance for our tasks.
+
+The new VM used the pytorch-latest-gpu image from the deeplearning-platform-release project, pre-installed with PyTorch and CUDA, reducing setup time. We selected the n1-standard-4 machine type for sufficient CPU, memory, and GPU resources.
+
+We must mention that settings like install-nvidia-driver=True allowed GPU driver installation for correct configuration and efficient model training. 
+
 
 ### Question 19
 
@@ -443,7 +450,12 @@ Our project makes use of several GCP services. They are listed together with the
 >
 > Answer:
 
---- question 19 fill here ---
+![Alt text](figures/Bucket.png)
+
+*Figure 1: This is an example caption.*
+
+
+
 
 ### Question 20
 
