@@ -6,6 +6,7 @@ from io import BytesIO
 from src.animal_classification.api import app, preprocess_image
 from src.animal_classification import api
 from fastapi.testclient import TestClient
+import warnings
 
 
 # Define the FastAPI app for testing
@@ -47,6 +48,9 @@ def test_preprocess_image(mock_transforms, mock_image_open):
 
 
 def test_get_prediction():
+    # Suppress Google Cloud SDK warnings
+    warnings.filterwarnings("ignore", category=UserWarning, module="google.auth._default")
+
     # Mock the preprocess_image function
     mock_preprocessed_image = torch.randn(1, 1, 48, 48)  # Simulated tensor
     with patch("src.animal_classification.api.preprocess_image", return_value=mock_preprocessed_image):
@@ -71,5 +75,4 @@ def test_get_prediction():
         # Assert the response
         assert response.status_code == 200
         assert response.json()["prediction"] == "cat"  # Expected class
-
 
