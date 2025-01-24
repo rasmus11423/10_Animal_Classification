@@ -68,6 +68,7 @@ def save_image_to_gcp(image: UploadFile, image_id: str):
     client = storage.Client()
     bucket = client.bucket(BUCKET_NAME)
     
+    image.file.seek(0)
     # Read the image content **before** using it in a background task
     image_content = image.file.read()  # Read the file before it gets closed
 
