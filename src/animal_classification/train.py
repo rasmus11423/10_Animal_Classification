@@ -60,9 +60,9 @@ def evaluate(model: nn.Module, dataloader: DataLoader, criterion: nn.Module, dev
 
 
 def train(
-    batch_size: int = 100,
+    batch_size: int = 130,
     epochs: int = 25,
-    lr: float = 2e-2,
+    lr: float = 1e-2,
     optimizer_name: str = None,
     criterion_name: str = None,
     config_path: str = typer.Option(CONFIG_PATH),
