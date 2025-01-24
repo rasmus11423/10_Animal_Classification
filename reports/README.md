@@ -447,9 +447,12 @@ We must mention that settings like install-nvidia-driver=True allowed GPU driver
 
 ![Alt text](figures/Bucket.png)
 
-*Figure 1: This is an example caption.*
+*Figure 1: Overview of buckets as required. The selected GCP bucket is the one that is used in our project.*
 
 
+![Alt text](figures/Bucket2.png)
+
+*Figure 2: The file structure of our GCP Bucket is shown in further detail here.*
 
 
 ### Question 20
@@ -459,7 +462,17 @@ We must mention that settings like install-nvidia-driver=True allowed GPU driver
 >
 > Answer:
 
---- question 20 fill here ---
+
+
+![Alt text](figures/ArtifactRegistry.png)
+
+*Figure 3: As required, our artifact registry is shown. The docker image on the cloud for our project is highlighted.*
+
+
+![Alt text](figures/ArtifactRegistry3.png)
+
+*Figure 4: We have shown the artifact history further within our project.*
+
 
 ### Question 21
 
@@ -468,7 +481,12 @@ We must mention that settings like install-nvidia-driver=True allowed GPU driver
 >
 > Answer:
 
---- question 21 fill here ---
+
+![Alt text](figures/CloudBuildHistory.png)
+
+*Figure 5: Our cloud build history is shown here.*
+
+
 
 ### Question 22
 
