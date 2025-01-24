@@ -2,6 +2,8 @@ import torch
 from torch import nn, optim
 from typing import Tuple
 from torch.utils.data import DataLoader
+from accelerate import Accelerator
+
 import typer
 from omegaconf import OmegaConf
 
@@ -12,23 +14,21 @@ from torch.profiler import profile, ProfilerActivity, tensorboard_trace_handler
 from data import load_data, download_processed_data
 from model import AnimalClassifier
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-logger.info(f"Using device: {device}")
 
 # Path to default configuration file
 CONFIG_PATH = "configs/training_configs.yaml"
 
-model = AnimalClassifier()
-model = model.to(device)
+
+
 
 
 def training_step(
-    images: torch.Tensor, labels, model: nn.Module, criterion: nn.Module, optimizer: torch.optim.Optimizer
+    images: torch.Tensor, labels, model: nn.Module, criterion: nn.Module, optimizer: torch.optim.Optimizer, accelerator: Accelerator, device: Accelerator.device
 ) -> Tuple[float, float, float]:
     optimizer.zero_grad()
     output = model(images)
     loss = criterion(output, labels)
-    loss.backward()
+    accelerator.backward(loss)
     optimizer.step()
 
     _, predicted = torch.max(output.data, 1)
@@ -38,7 +38,7 @@ def training_step(
     return loss.item(), accuracy, predicted
 
 
-def evaluate(model: nn.Module, dataloader: DataLoader, criterion: nn.Module) -> Tuple[float, float]:
+def evaluate(model: nn.Module, dataloader: DataLoader, criterion: nn.Module, device: Accelerator.device) -> Tuple[float, float]:
     total_loss = 0
     correct = 0
     total = 0
@@ -60,14 +60,30 @@ def evaluate(model: nn.Module, dataloader: DataLoader, criterion: nn.Module) -> 
 
 
 def train(
-    batch_size: int = 10,
-    epochs: int = 10,
-    lr: float = 4e-4,
+    batch_size: int = 100,
+    epochs: int = 25,
+    lr: float = 2e-2,
     optimizer_name: str = None,
     criterion_name: str = None,
     config_path: str = typer.Option(CONFIG_PATH),
 ) -> None:
     """Training the model on the animal data set."""
+    
+    profiler = profile(
+        activities=[ProfilerActivity.CPU, ProfilerActivity.CUDA]
+        if torch.cuda.is_available()
+        else [ProfilerActivity.CPU],
+        on_trace_ready=tensorboard_trace_handler("runs/profiler_logs"),
+        with_stack=True,
+        record_shapes=True,
+        profile_memory=True,
+        schedule=torch.profiler.schedule(
+            wait=2,  # Wait for 2 iterations before profiling
+            warmup=1,  # Warm up for 2 iterations
+            active=5,  # Profile for 5 iterations
+            repeat=1,  # Repeat profiling once
+        ),
+    )
 
     # Download preprocessed data at the start
     download_processed_data(
@@ -75,6 +91,16 @@ def train(
         source_path="data",
         local_path=""
     )
+
+
+    accelerator = Accelerator()
+    # accelerator handles the device configuration
+    device = accelerator.device
+    logger.info(f"Using device: {device}")
+
+    model = AnimalClassifier()
+    model = model.to(device)
+
     
     # Loading parameters from configuration file
     config = OmegaConf.load(config_path)
@@ -97,6 +123,9 @@ def train(
             "criterion_name": criterion_name,
         },
     )
+
+    table = wandb.Table(columns=["image", "prediction", "label"])
+
 
     wandb.watch(model, log_freq=300)  # Track gradients in W&B
 
@@ -122,49 +151,58 @@ def train(
         pin_memory=True
     )
 
-    # Torch Profiler for TensorBoard
-    logger.info("Starting profiler")
-    profiler = profile(
-        activities=[ProfilerActivity.CPU, ProfilerActivity.CUDA]
-        if torch.cuda.is_available()
-        else [ProfilerActivity.CPU],
-        on_trace_ready=tensorboard_trace_handler("runs/profiler_logs"),
-        with_stack=True,
-        record_shapes=True,
-        profile_memory=True,
-        schedule=torch.profiler.schedule(
-            wait=2,  # Wait for 2 iterations before profiling
-            warmup=2,  # Warm up for 2 iterations
-            active=5,  # Profile for 5 iterations
-            repeat=1,  # Repeat profiling once
-        ),
-    )
+    model, optimizer, criterion, train_dataloader, test_dataloader = accelerator.prepare(model,
+                                                                                          optimizer, 
+                                                                                          criterion, 
+                                                                                          train_dataloader, 
+                                                                                          test_dataloader
+                                                                                          )
+        
     
     logger.info("Starting training")
     profiler.start()
+
+    best_val_acc = 0
     
     for epoch in range(epochs):
         run_loss = 0
         run_acc = 0
         for idx, (images, labels) in enumerate(train_dataloader):
-            images, labels = images.to(device), labels.to(device)
+           # images, labels = images.to(device), labels.to(device)
 
             model.train()
 
-            batch_loss, batch_acc, predictions = training_step(images, labels, model, criterion, optimizer)
+            batch_loss, batch_acc, predictions = training_step(images, labels, model, criterion, optimizer, accelerator, device)
 
             run_acc += batch_acc
             run_loss += batch_loss
 
             profiler.step()  # Step the profiler after each iteration
 
+        # table to add images, predictions and labels. only for every second epoch and only 5 images
+        if epoch % 2 == 0:
+            for i in range(5):
+                # Convert tensors to numpy arrays or primitive types
+                img_np = images[i].cpu().numpy()
+                pred_val = predictions[i].item()  # Convert to Python scalar
+                label_val = labels[i].item()  # Convert to Python scalar
+                table.add_data(img_np, pred_val, label_val)
+
         avg_loss, avg_acc = run_loss / len(train_dataloader), run_acc / len(train_dataloader)
         logger.info(f"Epoch {epoch + 1}, Loss: {avg_loss:.4f}, Accuracy: {avg_acc:.2f}%")
 
         model.eval()
+
         with torch.no_grad():
-            val_loss, val_accuracy = evaluate(model, test_dataloader, criterion)
+            val_loss, val_accuracy = evaluate(model, test_dataloader, criterion, device)
             logger.info(f"Validation loss: {val_loss:.4f}, Validation accuracy: {val_accuracy:.2f}%")
+
+            if val_accuracy > best_val_acc:
+                best_val_acc = val_accuracy
+                logger.info("New best validation accuracy achieved")
+
+
+
         wandb.log(
             {
                 "Train accuracy": avg_acc,
@@ -172,15 +210,28 @@ def train(
                 "Validation loss": val_loss,
                 "Validation accuracy": val_accuracy,
                 "epoch": epoch,
+                
             }
         )
 
+        if epoch % 2 == 0:
+            wandb.log({"train_images": table})
+
+
+
     profiler.stop()
+
+    artifacts=wandb.Artifact("model", type="model", description="Model for animal classification", metadata={"epochs": epochs, "batch_size": batch_size, "optimizer_name": optimizer_name, "criterion_name": criterion_name, "accuracy": val_accuracy})
+    artifacts.add_file("models/model.pth")
+    logger.info("Logging artifact to wandb")
+    wandb.log_artifact(artifacts)
+
     
     logger.info("Training completed. Check TensorBoard for profiler logs.")
     logger.info("Run: tensorboard --logdir runs/profiler_logs")
-    logger.info("Saving model...")
-    torch.save(model.state_dict(), "models/model.pth")
+    logger.info(f"unwrapped model: {model}")
+    unwrapped_model = accelerator.unwrap_model(model)
+    torch.save(unwrapped_model.state_dict(), "models/model.pth")
     logger.info("Model saved to models/model.pth")
 
 if __name__ == "__main__":

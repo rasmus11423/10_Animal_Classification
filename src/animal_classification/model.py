@@ -19,14 +19,10 @@ class AnimalClassifier(nn.Module):
             nn.ReLU(),
             nn.MaxPool2d(kernel_size=2, stride=2),
             nn.Dropout(0.25),  # Dropout for regularization
-
             nn.Flatten(),
             nn.Linear(64 * 12 * 12, 128),
             nn.LayerNorm(128),  # LayerNorm for fully connected layer
             nn.ReLU(),
-            nn.Dropout(0.5),  # Higher dropout for fully connected layer
-
-            nn.Dropout(0.25),
             nn.Linear(128, 10),
         )
 

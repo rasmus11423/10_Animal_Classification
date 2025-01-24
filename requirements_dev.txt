@@ -19,12 +19,13 @@ mkdocstrings-python==1.12.2
 
 # data 
 kagglehub
-mlcroissant
+
 kaggle==1.6.17 
 
 # logger
-loguru
+loguru==0.7.3
 
 # visuals 
-matplotlib 
+matplotlib==3.10.0 
 
+accelerate==1.3.0
