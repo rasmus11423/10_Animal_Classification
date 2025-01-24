@@ -355,7 +355,7 @@ Thanks to our initial setup, using W&B and sweep configuration files, we ensured
 >
 > Answer:
 ```markdown
-![Alt text](figures/runs.jpg)
+![Alt text](figures/run.png)
 ```
 
 
@@ -501,7 +501,7 @@ We must mention that settings like install-nvidia-driver=True allowed GPU driver
 >
 > Answer:
 
---- question 22 fill here ---
+
 
 ## Deployment
 
