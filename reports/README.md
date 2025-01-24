@@ -447,12 +447,12 @@ We must mention that settings like install-nvidia-driver=True allowed GPU driver
 
 ![Alt text](figures/Bucket.png)
 
-*Figure 1: Overview of buckets as required. The selected GCP bucket is the one that is used in our project.*
+Overview of buckets as required. The selected GCP bucket is the one that is used in our project.
 
 
 ![Alt text](figures/Bucket2.png)
 
-*Figure 2: The file structure of our GCP Bucket is shown in further detail here.*
+The file structure of our GCP Bucket is shown in further detail here.
 
 
 ### Question 20
@@ -466,12 +466,12 @@ We must mention that settings like install-nvidia-driver=True allowed GPU driver
 
 ![Alt text](figures/ArtifactRegistry.png)
 
-*Figure 3: As required, our artifact registry is shown. The docker image on the cloud for our project is highlighted.*
+As required, our artifact registry is shown. The docker image on the cloud for our project is highlighted.
 
 
 ![Alt text](figures/ArtifactRegistry3.png)
 
-*Figure 4: We have shown the artifact history further within our project.*
+We have shown the artifact history further within our project.
 
 
 ### Question 21
@@ -484,7 +484,7 @@ We must mention that settings like install-nvidia-driver=True allowed GPU driver
 
 ![Alt text](figures/CloudBuildHistory.png)
 
-*Figure 5: Our cloud build history is shown here.*
+Our cloud build history is shown here.
 
 
 
@@ -622,6 +622,10 @@ We briefly implemented data drifting. The API stores the input data from the use
 >
 > Answer:
 In general we used everything in the overview.png, besides Hydra due to its incompatibility with typer and DVC due to problems with google authentication as mentioned in the course. 
+
+We have circled in red, the tools that we did not touch upon in the project. We credit the course creators for the figure.
+
+![Alt text](figures/Q29.png)
 
 ### Question 30
 
