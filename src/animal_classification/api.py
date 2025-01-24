@@ -1,6 +1,6 @@
 from fastapi import FastAPI 
 from contextlib import asynccontextmanager
-from fastapi import UploadFile, File, BackgroundTasks
+from fastapi import UploadFile, File, BackgroundTasks, HTTPException
 from .model import AnimalClassifier
 import torch
 from PIL import Image
@@ -11,8 +11,13 @@ import datetime
 import json
 import uuid
 from io import BytesIO
+from prometheus_client import Counter, make_asgi_app
 
 BUCKET_NAME = "dtumlops_databucket"
+
+# Define Prometheus metrics
+error_counter = Counter("prediction_error", "Number of prediction errors")
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -55,6 +60,7 @@ def preprocess_image(image: UploadFile):
     return transform(image).unsqueeze(0) # batch_dimension
 
 app  = FastAPI(lifespan=lifespan) 
+app.mount("/metrics", make_asgi_app())
 
 def save_image_to_gcp(image: UploadFile, image_id: str):
     """Save the uploaded image to GCP bucket."""
@@ -92,9 +98,13 @@ def save_prediction_to_gcp(image_id: str, label: str):
 
 @app.post("/get_prediction")
 async def get_prediction(image: UploadFile = File(...)):
-
-    image = preprocess_image(image) 
-    prediction = model(image)
-    predicted_class_idx = int(prediction.argmax())
-    predicted_class = idx_to_class[predicted_class_idx]
-    return {"prediction": predicted_class}
+    try:
+        image = preprocess_image(image) 
+        prediction = model(image)
+        predicted_class_idx = int(prediction.argmax())
+        predicted_class = idx_to_class[predicted_class_idx]
+        return {"prediction": predicted_class}
+    
+    except Exception as e:
+        error_counter.inc()
+        raise HTTPException(status_code=500, detail=str(e)) from e
