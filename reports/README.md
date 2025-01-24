@@ -355,7 +355,7 @@ Thanks to our initial setup, using W&B and sweep configuration files, we ensured
 >
 > Answer:
 ```markdown
-![runs](figures/runs.jpg)
+![Alt text](figures/runs.jpg)
 ```
 
 
