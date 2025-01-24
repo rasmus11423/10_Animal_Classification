@@ -355,7 +355,7 @@ Thanks to our initial setup, using W&B and sweep configuration files, we ensured
 >
 > Answer:
 ```markdown
-![runs](reports/figures/runs.jpg)
+![runs](figures/runs.jpg)
 ```
 
 
@@ -372,15 +372,16 @@ Thanks to our initial setup, using W&B and sweep configuration files, we ensured
 >
 > Answer:
 
---- question 15 fill here ---
 Docker was used to create containerized applications for training, inference and deployment. One finds the docker files to create the api and train docker images in the dockerfiles folder. We also previosly mentioned that we used workflows to automatically build these docker images.
 
-To run the training docker image, one can run the "docker_build" task in tasks.py by invoking the command:
+To build the train docker image:
 ```bash
-invoke docker_build
+docker build . -f dockerfiles/train.dockerfile -t docker_image
 ```
-
-CHECK THE COMMAND (doesn't work for me for some reason?)
+The run the image:
+```bash
+docker run docker_image
+```
 
 ### Question 16
 
@@ -395,8 +396,7 @@ CHECK THE COMMAND (doesn't work for me for some reason?)
 >
 > Answer:
 
---- question 16 fill here ---
-Debugging the code was, as the example suggests, dependent on each group member, we mostly used the traditional print commands, but we did log results to a logger to help with develoment debugging. We did in fact profile the code to identify bottlenecks in the code via tensorboard, information on how to run the logger is present in the README.md file in the root directory of the project, as well as previous profiler runs stored in the "runs/profiler_logs" folder.
+We used a logger (Loguru) to log some important lines in the code, this aided us in tracking errors and aid in debugging. We also used a profiler in the code to identify bottlenecks in the code via tensorboard, information on how to run the logger is present in the README.md file in the root directory of the project, as well as previous profiler runs stored in the "runs/profiler_logs" folder.
 
 ## Working in the cloud
 
