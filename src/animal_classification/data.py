@@ -199,6 +199,10 @@ def download_processed_data(bucket_name: str, source_path: str, local_path: str 
     os.remove(zip_path)
     logger.info(f"Data extracted to {local_path}")
 
+    for root, dirs, files in os.walk(local_path):
+        for file in files:
+            if file == "18782.jpeg" or file == "18782.jpg":
+                os.remove(os.path.join(root, file))
 
 def load_data(rgb=False, train=True):
     if rgb:

@@ -1,5 +1,5 @@
 substitutions:
-  _VERTEX_TRAIN_CONFIG: 'configs/config_gpu.yaml'
+  _VERTEX_TRAIN_CONFIG: 'configs/config_cpu.yaml'
 
 steps:
 - name: "alpine"
@@ -9,8 +9,8 @@ steps:
     - '-c'
     - |
       apk add --no-cache gettext
-      envsubst < configs/config_gpu.yaml > configs/config_gpu.yaml.tmp
-      mv configs/config_gpu.yaml.tmp configs/config_gpu.yaml
+      envsubst < configs/config_cpu.yaml > configs/config_cpu.yaml.tmp
+      mv configs/config_cpu.yaml.tmp configs/config_cpu.yaml
   secretEnv: ['WANDB_API_KEY']
 
 - name: 'alpine'
@@ -20,7 +20,7 @@ steps:
   args:
     - '-c'
     - |
-      cat configs/config_gpu.yaml
+      cat configs/config_cpu.yaml
 
 - name: 'gcr.io/cloud-builders/gcloud'
   id: 'Train on vertex AI'
@@ -29,7 +29,7 @@ steps:
     'ai',
     'custom-jobs',
     'create',
-    '--region', 
+    '--region',
     'europe-west1',
     '--display-name',
     'run-animal-train',
