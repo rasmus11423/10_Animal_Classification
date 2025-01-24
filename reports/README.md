@@ -500,7 +500,9 @@ We must mention that settings like install-nvidia-driver=True allowed GPU driver
 > *was because ...*
 >
 > Answer:
-
+We successfully trained our model in the cloud using Google Cloud Platform's (GCP) Vertex AI! To begin, we built a Docker container with dependencies, training scripts, and configurations as specified in Module 21, deployed via Vertex AI using a custom (config.yaml), specifying the machine type, GPU (NVIDIA Tesla T4), and replica count.
+Before transitioning to Vertex AI, we verified GCP cloud resources by running a HelloWorld.py script on a sample VM instance. This step validated our setup and established that we could scale to a more automated workflow. We enabled Vertex AI by activating the aiplatform.googleapis.com service. We ensured quota availability for GPU resources in our region (europe-west1) simply by getting “allRegions” approved . This quota allowed us to execute custom training jobs using gcloud ai custom-jobs create.
+Needless to say, we leveraged GCP’s mounted file system by storing the data in the bucket - greatly improving latency! We also set the correct environment variables in the configuration file. This allowed our project to have easy integration with tools like Weights and Biases. We feel that Vertex AI’s automation and scalability greatly simplified the experimentation process compared to manual setup on Compute Engine VMs.
 
 
 ## Deployment
@@ -518,7 +520,7 @@ We must mention that settings like install-nvidia-driver=True allowed GPU driver
 >
 > Answer:
 
---- question 23 fill here ---
+We used FastAPI and context manager library to initate a lifespan that instantiates the model and safely closes it when the API is no longer in use such that the end user does not have to wait for the model to load upon each request. We have only a post API to get predictions of an input animal image from the user. 
 
 ### Question 24
 
@@ -534,7 +536,11 @@ We must mention that settings like install-nvidia-driver=True allowed GPU driver
 >
 > Answer:
 
---- question 24 fill here ---
+We managed to deploy the API on cloud using the cloud run service. We dockerized our API on the cloud and it is ready to serve users. To invoke the service a user would call 
+'''bash
+curl -X POST "https://inference-api-200906448903.europe-west1.run.app/get_prediction" -F "image=@<path_to_image>"
+'''
+
 
 ### Question 25
 
@@ -549,7 +555,7 @@ We must mention that settings like install-nvidia-driver=True allowed GPU driver
 >
 > Answer:
 
---- question 25 fill here ---
+Yes we did it for the preprocessing of the images function - here we tested with mock images.
 
 ### Question 26
 
@@ -564,7 +570,7 @@ We must mention that settings like install-nvidia-driver=True allowed GPU driver
 >
 > Answer:
 
---- question 26 fill here ---
+We briefly implemented monitoring following M26 where we did a local host metrics logging. We were able to see the metrics of a user interacting with the API in real time. 
 
 ## Overall discussion of project
 
@@ -583,7 +589,7 @@ We must mention that settings like install-nvidia-driver=True allowed GPU driver
 >
 > Answer:
 
---- question 27 fill here ---
+We used 7 dollars 37. What cost the most for our group was the compute engine because we made use of multiple instances over a lot of time while we did not make much use of the API calls. We noticed that the cloud required more computational time than our local pc's due to hardware constraints on our Quotas. We also noticed that it took really f**cking long to request Quotas - at the end we abaonded the GPU training even though it was convigured but the Quotas were missing. 
 
 ### Question 28
 
@@ -599,7 +605,7 @@ We must mention that settings like install-nvidia-driver=True allowed GPU driver
 >
 > Answer:
 
---- question 28 fill here ---
+We briefly implemented data drifting. The API stores the input data from the user into the data bucket toghether with the model prediction. Locally we wrote a a monitoring.py scripts which compares the current data with the reference data using CLIP. This was tested quikly on some images but due to lack of time we did not explore this further. 
 
 ### Question 29
 
@@ -615,8 +621,7 @@ We must mention that settings like install-nvidia-driver=True allowed GPU driver
 > *Whenever we commit code and push to GitHub, it auto triggers ... and ... . From there the diagram shows ...*
 >
 > Answer:
-
---- question 29 fill here ---
+In general we used everything in the overview.png, besides Hydra due to its incompatibility with typer and DVC due to problems with google authentication as mentioned in the course. 
 
 ### Question 30
 
@@ -629,8 +634,7 @@ We must mention that settings like install-nvidia-driver=True allowed GPU driver
 > *The biggest challenges in the project was using ... tool to do ... . The reason for this was ...*
 >
 > Answer:
-
---- question 30 fill here ---
+The challenges were definitely working with the cloud. It didn't provide an intuitive interface which we struggled with and required a lot of excessive documentation reading and time only to find out that we are reading the wrong documentation. 
 
 ### Question 31
 
@@ -646,6 +650,8 @@ We must mention that settings like install-nvidia-driver=True allowed GPU driver
 > *All members contributed to code by...*
 >
 > Answer:
-
---- question 31 fill here ---
-We all contributed to the project by developing the code, writing the report, sharing ideas, and we divided the big tasks such as creating the barebone architecture, the tests, docker, google cloud deployment, W&B, profiler and more, by using trello.
+s193473 Cloud, training, accelerate framework, API, github actions.
+s215231 Data drifting, docker, API
+s215160 cookiecutter framework, unit testing, cloud storage, API testing, monitoring.
+s215221 GCP bucket, cloud compute engine.
+s215210 documentation, model architecture, profiling
