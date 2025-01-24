@@ -9,7 +9,6 @@ steps:
     'europe-west1-docker.pkg.dev/dtumlops-447611/animal-cls/train',
     '-f',
     'dockerfiles/train.dockerfile',
-    
      ]
 - name: 'gcr.io/cloud-builders/docker'
   id: 'Push container image'
