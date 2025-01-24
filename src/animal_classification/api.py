@@ -12,6 +12,7 @@ import json
 import uuid
 from io import BytesIO
 from prometheus_client import Counter, make_asgi_app
+from loguru import logger 
 
 BUCKET_NAME = "dtumlops_databucket"
 
@@ -99,12 +100,18 @@ def save_prediction_to_gcp(image_id: str, label: str):
 @app.post("/get_prediction")
 async def get_prediction(image: UploadFile = File(...)):
     try:
-        image = preprocess_image(image) 
-        prediction = model(image)
+        image_processed = preprocess_image(image) 
+        prediction = model(image_processed)
         predicted_class_idx = int(prediction.argmax())
-        predicted_class = idx_to_class[predicted_class_idx]
+        predicted_class = idx_to_class[str(predicted_class_idx)]
+        image_id = str(uuid.uuid4())
+        save_image_to_gcp(image, image_id)
+        save_prediction_to_gcp(image_id, predicted_class)
         return {"prediction": predicted_class}
     
     except Exception as e:
         error_counter.inc()
         raise HTTPException(status_code=500, detail=str(e)) from e
+
+    
+
