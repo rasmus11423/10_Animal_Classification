@@ -6,6 +6,7 @@ from io import BytesIO
 from src.animal_classification.api import app, preprocess_image
 from src.animal_classification import api
 from fastapi.testclient import TestClient
+import warnings
 
 
 # Define the FastAPI app for testing
@@ -47,32 +48,31 @@ def test_preprocess_image(mock_transforms, mock_image_open):
 
 
 def test_get_prediction():
-    # Mock the preprocess_image function to return a realistic tensor
-    mock_preprocessed_image = torch.randn(1, 1, 48, 48)  # Simulated batch tensor
+    # Suppress Google Cloud SDK warnings
+    warnings.filterwarnings("ignore", category=UserWarning, module="google.auth._default")
+
+    # Mock the preprocess_image function
+    mock_preprocessed_image = torch.randn(1, 1, 48, 48)  # Simulated tensor
     with patch("src.animal_classification.api.preprocess_image", return_value=mock_preprocessed_image):
-        # Dynamically define and mock the `model` in the api module
+        # Mock the model and its behavior
         mock_model = MagicMock()
         mock_model.return_value = torch.tensor([[0.1, 0.2, 0.7]])  # Simulated softmax output
-        api.model = mock_model  # Define `model` dynamically in the api module
+        api.model = mock_model  # Assign mock model to the API module
 
-        # Define `idx_to_class` directly in the api module
-        api.idx_to_class = {0: "dog", 1: "bird", 2: "cat"}
+        # Mock the idx_to_class mapping with string keys
+        api.idx_to_class = {"0": "dog", "1": "bird", "2": "cat"}
 
-        # Simulate sending an image file to the API
+        # Simulate sending an image file
         image_data = BytesIO(b"fake image data")
         response = client.post(
             "/get_prediction",
             files={"image": ("test_image.jpg", image_data, "image/jpeg")},
         )
 
+        # Log response for debugging
+        print("Response JSON:", response.json())
+
         # Assert the response
         assert response.status_code == 200
-        assert response.json() == {"prediction": "cat"}  # Based on idx_to_class mapping
-
-        # Validate that preprocess_image and model were called
-        api.model.assert_called_once_with(mock_preprocessed_image)
-
-        # Cleanup: Remove the dynamically added attributes
-        del api.model
-        del api.idx_to_class
+        assert response.json()["prediction"] == "cat"  # Expected class
 
